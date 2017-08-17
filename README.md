@@ -5,7 +5,7 @@ Clients for the Commercial Paper Pilot for NSD
 
 
 
-Installing
+Install
 ==========
 
 `npm install`
