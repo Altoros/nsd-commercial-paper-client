@@ -7,7 +7,7 @@ to members' API servers over http or WebSocket and get notified of events in ins
 **sign** client is to be run by NSD members. Will receive `Instruction.matched` event and will sign Alameda xml payload 
 and will update the instruction with its signature.
 A sample signing method hashes the payload; to implement other signing algorithms 
-change `sign` method in (./lib/signer.js) 
+change `sign` method in [./lib/signer.js](./lib/signer.js) 
 
 **download** client is to be run by NSD. Will receive `Instruction.executed` event and will download Alameda xml payload
 and signatures form both parties and save into a local file to be picked up by Alameda; upon success 
