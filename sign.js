@@ -19,10 +19,7 @@ if(!API){
   throw new Error("API is not set. Please, use environment to set it");
 }
 
-const USER = process.env.USER;
-if(!USER){
-  throw new Error("USER is not set. Please, use environment to set it");
-}
+const USER = process.env.USER || 'signUser';
 
 const EVENT_INSTRUCTION_MATCHED = 'Instruction.matched';
 

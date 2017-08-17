@@ -17,7 +17,11 @@ Run
 
 Signer app
 -----------
-`API=http://localhost:4000 ORG=a USER=signUser node sign`
+`API=http://localhost:4000 USER=signUser node sign`
+
+(optional) specify user to run invokations  
+
+`API=http://localhost:4000 USER=signUser node sign`
 
 Downloader app
 --------------
@@ -26,4 +30,8 @@ Downloader app
 (optional) with file location  
 
 `API=http://localhost:4001 FOLDER_SAVE=../savehere node download`
+
+(optional) specify user to run invokations  
+
+`API=http://localhost:4000 USER=signUser node download`
 
