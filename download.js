@@ -22,74 +22,123 @@ if(!API){
 }
 
 var FOLDER_SAVE = process.env.FOLDER_SAVE || './alameda';
-if(!FOLDER_SAVE){
-  throw new Error("FOLDER_SAVE is not set. Please, use environment to set it");
-}
 if(!path.isAbsolute(FOLDER_SAVE)){
   FOLDER_SAVE = path.join(__dirname, FOLDER_SAVE);
 }
 
-// check target folder
-try{
-  fs.mkdirSync(FOLDER_SAVE);
-}catch(e){
-  if(e.code != 'EEXIST'){
-    console.log(e);
-    process.exit(1);
-  }
-}
+const USER = process.env.USER || 'signUser';
 
+// check target folder
+mkdirSyncSafe(FOLDER_SAVE);
 
 
 const EVENT_INSTRUCTION_SIGNED = 'Instruction.signed';
 
-logger.info('****************************************');
-logger.info('API:\t%s', API);
-logger.info('FOLDER_SAVE:\t%s', FOLDER_SAVE);
-logger.info('****************************************');
-
-
-
+/**
+ * @type {string} organisation deponent code
+ */
+var deponent = null;
+/**
+ * @type {string} orgPeerID of endorse peer(s) for signing instruction
+ */
+var endorsePeer = null;
 
 ////////////////////////////////////////////////////////////
-// Socket client
-var socket = new FabricSocketClient(API);
-socket.on('chainblock', function (block) {
-  block = tools.replaceBuffer(block); // encode all buffer data with base64 string
+// rest client
+var client = new FabricRestClient(API);
+client.getConfig().then(config=>{
+  // we have received ledger config
 
-  var iInfoArr = helper.getBlockInstructions(block, EVENT_INSTRUCTION_SIGNED) || [];
-  if(iInfoArr.length==0) return;
+  // extract some stuff from config
+  org = config.org;
+  deponent = config['account-config'][org].dep;
+  var endorsePeerId = Object.keys(config['network-config'][org]||{}).filter(k=>k.startsWith('peer'))[0];
+  endorsePeer = org+'/'+endorsePeerId;
 
-  // sign and send instructions (use chainPromise to send requests sequentually)
-  return tools.chainPromise(iInfoArr, function(iInfo){
-    return Promise.resolve(_processInstruction(iInfo.payload, iInfo.channel_id));
+  logger.info('****************************************');
+  logger.info('API:\t%s', API);
+  logger.info('FOLDER_SAVE:\t%s', FOLDER_SAVE);
+  logger.info('USER:\t%s', USER);
+  logger.info('ENDORSER:\t%s', endorsePeer);
+  logger.info('****************************************');
+
+
+
+
+  ////////////////////////////////////////////////////////////
+  // Socket client
+  var socket = new FabricSocketClient(API);
+  socket.on('chainblock', function (block) {
+    block = tools.replaceBuffer(block); // encode all buffer data with base64 string
+
+    var iInfoArr = helper.getBlockInstructions(block, EVENT_INSTRUCTION_SIGNED) || [];
+    if(iInfoArr.length==0) return;
+
+    // sign and send instructions (use chainPromise to send requests sequentually)
+    return tools.chainPromise(iInfoArr, function(iInfo){
+      return Promise.resolve(_processInstruction(iInfo.payload, iInfo.channel_id));
+    });
   });
+
+
+
+
+  // PROCESS INSTRUCTION
+
+  function _processInstruction(instruction, channel_id){
+    if(!signer.isSignedAll(instruction)){
+      logger.debug('Not signed by all members:', helper.instruction2string(instruction));
+      return;
+    }
+
+    var fileData = {
+      alamedaFrom : instruction.alamedaFrom,
+      alamedaTo   : instruction.alamedaTo,
+      alamedaSignatureFrom : instruction.alamedaSignatureFrom,
+      alamedaSignatureTo   : instruction.alamedaSignatureTo,
+    };
+    var filename = helper.instructionFilename(instruction)+'.json';
+    var filepath = path.join(FOLDER_SAVE, filename);
+
+    return writeFilePromise(filepath, JSON.stringify(fileData))
+      .then(function(){
+        logger.debug('File write succeed: %s', filepath);
+
+        // TODO: not really need always sign up
+        return client.signUp(USER);
+      }).then(function(/*body*/){
+
+        return client.setInstructionStatus(channel_id, [endorsePeer], instruction, 'downloaded');
+      }).then(function(result){
+        logger.debug('Status updated for:', helper.instruction2string(instruction));
+      });
+  }
+
+
 });
 
 
-
-// PROCESS INSTRUCTION
-
-function _processInstruction(instruction/*, channel_id*/){
-  if(!signer.isSignedAll(instruction)){
-    logger.debug('Not signed by all members:', helper.instruction2string(instruction));
-    return;
+/**
+ * @param {string} folder
+ */
+function mkdirSyncSafe(folder){
+  try{
+    fs.mkdirSync(FOLDER_SAVE);
+  }catch(e){
+    if(e.code != 'EEXIST'){
+      throw e;
+    }
   }
+}
 
-  var fileData = {
-    alamedaFrom : instruction.alamedaFrom,
-    alamedaTo   : instruction.alamedaTo,
-    alamedaSignatureFrom : instruction.alamedaSignatureFrom,
-    alamedaSignatureTo   : instruction.alamedaSignatureTo,
-  };
-  var filename = helper.instructionFilename(instruction)+'.json';
 
+/**
+ * @param
+ */
+function writeFilePromise(filepath, data){
   return new Promise(function(resolve, reject){
-    var filepath = path.join(FOLDER_SAVE, filename);
-    fs.writeFile(filepath, JSON.stringify(fileData), function(err){
-      logger.debug('File writed %s: %s', err ? 'ERR' : 'success', filepath, err||'');
+    fs.writeFile(filepath, data, function(err){
       err ? reject(err) : resolve();
     })
   });
 }
-

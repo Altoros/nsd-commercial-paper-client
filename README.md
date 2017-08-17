@@ -23,9 +23,9 @@ Run
 
 Signer app
 -----------
-`API=http://localhost:4001 ORG=a USER=signUser node sign`
+`API=http://localhost:4001 USER=signUser node sign`
 
 Downloader app
---------------
+-------------- 
 `API=http://localhost:4000 FOLDER_SAVE=../savehere node download`
 
