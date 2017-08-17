@@ -1,0 +1,24 @@
+{
+  "name": "org-sign-app",
+  "version": "0.1.0",
+  "description": "client to sign Alameda xml",
+  "scripts": {
+    "sign": "node $NODE_DEBUG_OPTION sign",
+    "download": "node $NODE_DEBUG_OPTION download",
+
+    "sign-dev": "API=http://localhost:4001 ORG=a USER=signUser node $NODE_DEBUG_OPTION sign",
+    "download-dev": "API=http://localhost:4001 node $NODE_DEBUG_OPTION download",
+    "test": "mocha"
+  },
+  "author": "Maksim Chartkou <maksim.chartkou@altoros.com>",
+  "private": true,
+  "license": "ISC",
+  "dependencies": {
+    "log4js": "^2.3.3",
+    "socket.io-client": "^2.0.3",
+    "socketio": "^1.0.0"
+  },
+  "devDependencies": {
+    "nock": "^9.0.14"
+  }
+}

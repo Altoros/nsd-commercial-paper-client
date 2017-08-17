@@ -1,0 +1,28 @@
+{
+"transferer": {
+  "account": "902",
+  "division": "05"
+},
+"receiver": {
+  "account": "903",
+  "division": "09"
+},
+"security": "RU000ABC0001",
+"quantity": "1",
+"reference": "z",
+"instructionDate": "2017-08-16",
+"tradeDate": "2017-08-16",
+"deponentFrom": "CA9861913023",
+"deponentTo": "DE000DB7HWY7",
+"status": "matched",
+"initiator": "receiver",
+"reason": {
+  "document": "",
+  "description": "",
+  "documentDate": ""
+},
+"alamedaFrom": "\n<Batch>\n<Documents_amount>1</Documents_amount>\n<Document DOC_ID=\"1\" version=\"7\">\n<ORDER_HEADER>\n<deposit_c>DEPOSITARY_CODE</deposit_c>\n<contrag_c>CA9861913023</contrag_c>\n<contr_d_id>42</contr_d_id>\n<createdate>2017-08-16</createdate>\n<order_t_id>16</order_t_id>\n<execute_dt>2017-08-16</execute_dt>\n<expirat_dt>+24h</expirat_dt>\n</ORDER_HEADER>\n<MF010>\n<dep_acc_c>902</dep_acc_c>\n<sec_c>05</sec_c>\n<deponent_c>CA9861913023</deponent_c>\n<corr_acc_c>903</corr_acc_c>\n<corr_sec_c>09</corr_sec_c>\n<corr_code>DE000DB7HWY7</corr_code>\n<based_on></based_on>\n<based_numb></based_numb>\n<based_date></based_date>\n<securities><security>\n<security_c>RU000ABC0001</security_c>\n<security_q>1</security_q>\n</security>\n</securities>\n<deal_reference>z</deal_reference>\n<date_deal>2017-08-16</date_deal>\n</MF010>\n",
+"alamedaTo": "\n<Batch>\n<Documents_amount>1</Documents_amount>\n<Document DOC_ID=\"1\" version=\"7\">\n<ORDER_HEADER>\n<deposit_c>DEPOSITARY_CODE</deposit_c>\n<contrag_c>DE000DB7HWY7</contrag_c>\n<contr_d_id>42</contr_d_id>\n<createdate>2017-08-16</createdate>\n<order_t_id>16/1</order_t_id>\n<execute_dt>2017-08-16</execute_dt>\n<expirat_dt>+24h</expirat_dt>\n</ORDER_HEADER>\n<MF010>\n<dep_acc_c>902</dep_acc_c>\n<sec_c>05</sec_c>\n<deponent_c>CA9861913023</deponent_c>\n<corr_acc_c>903</corr_acc_c>\n<corr_sec_c>09</corr_sec_c>\n<corr_code>DE000DB7HWY7</corr_code>\n<based_on></based_on>\n<based_numb></based_numb>\n<based_date></based_date>\n<securities><security>\n<security_c>RU000ABC0001</security_c>\n<security_q>1</security_q>\n</security>\n</securities>\n<deal_reference>z</deal_reference>\n<date_deal>2017-08-16</date_deal>\n</MF010>\n",
+"alamedaSignatureFrom": "",
+"alamedaSignatureTo": "75e243a66e9538d81a5176535bb524911ffa9a69bd1e37fac4ec1455404dd4ff"
+}
