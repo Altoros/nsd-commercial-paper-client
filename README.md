@@ -1,8 +1,8 @@
 
-Description 
-============
+# nsd-commercial-paper-client
 
-_tbd_
+Clients for the Commercial Paper Pilot for NSD
+
 
 
 Installing
