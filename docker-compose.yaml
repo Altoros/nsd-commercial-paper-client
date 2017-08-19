@@ -1,0 +1,40 @@
+#
+# Copyright Altoros. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+version: '2'
+
+services:
+
+  base:
+    image: node:6-alpine
+    volumes:
+      - ./:/usr/src
+    working_dir: /usr/src
+
+  sign.a.nsd.ru:
+    extends: base
+    container_name: sign.a.nsd.ru
+    environment:
+      - API=http://api.a.nsd.ru:4000
+    command: npm run sign
+
+  sign.b.nsd.ru:
+    extends: base
+    container_name: sign.b.nsd.ru
+    environment:
+      - API=http://api.b.nsd.ru:4000
+    command: npm run sign
+
+  download.nsd.nsd.ru:
+    extends: base
+    container_name: download.nsd.nsd.ru
+    environment:
+      - API=http://api.nsd.nsd.ru:4000
+    command: npm run download
+
+networks:
+  default:
+    external:
+      name: ledger_default
