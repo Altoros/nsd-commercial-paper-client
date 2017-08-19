@@ -29,3 +29,10 @@ Downloader app
 -------------- 
 `API=http://localhost:4000 FOLDER_SAVE=../savehere USER=downloadUser npm run download`
 
+
+
+Development
+-----------
+
+You can use docker-compose to run all the necessary services in addition to the basic project  
+`docker-compose up -d`  
