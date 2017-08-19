@@ -76,7 +76,8 @@ client.getConfig().then(config=>{
 
     // sign and send instructions (use chainPromise to send requests sequentually)
     return tools.chainPromise(iInfoArr, function(iInfo){
-      return Promise.resolve(_processInstruction(iInfo.payload, iInfo.channel_id));
+      var instruction = helper.normalizeInstruction(iInfo.payload);
+      return Promise.resolve(_processInstruction(instruction, iInfo.channel_id));
     });
   });
 
@@ -86,31 +87,38 @@ client.getConfig().then(config=>{
   // PROCESS INSTRUCTION
 
   function _processInstruction(instruction, channel_id){
+    logger.trace('_processInstruction channel - %s:', channel_id, JSON.stringify(instruction));
     if(!signer.isSignedAll(instruction)){
       logger.debug('Not signed by all members:', helper.instruction2string(instruction));
       return;
+    }else{
+      logger.debug('Instruction has signed by all members:', helper.instruction2string(instruction));
     }
 
+    // TODO data format ewxample
     var fileData = {
       alamedaFrom : instruction.alamedaFrom,
       alamedaTo   : instruction.alamedaTo,
       alamedaSignatureFrom : instruction.alamedaSignatureFrom,
       alamedaSignatureTo   : instruction.alamedaSignatureTo,
     };
-    var filename = helper.instructionFilename(instruction)+'.json';
-    var filepath = path.join(FOLDER_SAVE, filename);
+    var filepath = path.join(FOLDER_SAVE, helper.instructionFilename(instruction)+'.json');
 
     return writeFilePromise(filepath, JSON.stringify(fileData))
       .then(function(){
         logger.debug('File write succeed: %s', filepath);
 
         // TODO: not really need always sign up
-        return client.signUp(USER);
+        // return client.signUp(USER);
       }).then(function(/*body*/){
 
-        return client.setInstructionStatus(channel_id, [endorsePeer], instruction, 'downloaded');
+        // TODO: do we really need such status?
+        // return client.setInstructionStatus(channel_id, [endorsePeer], instruction, 'downloaded');
       }).then(function(result){
-        logger.debug('Status updated for:', helper.instruction2string(instruction));
+        // logger.debug('Status updated for:', helper.instruction2string(instruction));
+      })
+      .catch(function(e){
+        logger.error('Script error:', e);
       });
   }
 
