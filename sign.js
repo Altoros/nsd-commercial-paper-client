@@ -80,7 +80,8 @@ client.getConfig().then(config=>{
     logger.trace('_processInstruction channel - %s:', channel_id, JSON.stringify(instruction));
 
     // skip already signed
-    if(!helper.getRoleInInstruction(instruction, deponent)){
+    var role = helper.getRoleInInstruction(instruction, deponent);
+    if(!role){
       logger.debug('Deponent %s not a member of instruction:', deponent, helper.instruction2string(instruction));
       return;
     }
@@ -91,8 +92,12 @@ client.getConfig().then(config=>{
       return;
     }
 
-    // TODO: not really need always sign up
-    return client.signUp(USER).then(function(/*body*/){
+    var delay = role != 'receiver' ? 0 : 5000; // TODO: receiver delay
+    logger.trace('Delay signing for %s ms', delay);
+    return timeoutPromise(delay).then(function(){
+      // TODO: not really need always sign up
+      return client.signUp(USER);
+    }).then(function(/*body*/){
       var signature = signer.signInstruction(instruction, deponent);
       logger.debug('Signed:', signature);
 
@@ -107,3 +112,15 @@ client.getConfig().then(config=>{
 
 
 });
+
+
+function timeoutPromise(interval){
+  var p = new Promise((resolve, reject)=>{
+    if(interval==0){
+      process.nextTick(resolve)
+    } else {
+      var timer = setTimeout(resolve, interval);
+    }
+  });
+  return p;
+}
