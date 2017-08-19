@@ -95,7 +95,7 @@ client.getConfig().then(config => {
       return;
     }
 
-    var delay = role !== 'receiver' ? 5000 : 10000; // TODO: receiver delay
+    var delay = role !== 'receiver' ? 0 : 10000; // TODO: delay receiver execution over transferer
     logger.trace('Delay signing for %s ms', delay);
     return timeoutPromise(delay).then(function(){
       // TODO: not really need always sign up
