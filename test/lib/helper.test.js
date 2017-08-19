@@ -40,7 +40,7 @@ describe('Block Helper', function(){
 
   it('instructionFilename', function(){
     var instruction = readFileJson('../artifacts/instruction1.json');
-    var result = 'CA9861913023-902-05-DE000DB7HWY7-903-09-z-20170816-20170816';
+    var result = 'RU000ABC0001-902-05-903-09-1-z-20170816-20170816';
 
     assert.deepEqual( helper.instructionFilename(instruction), result);
   });
