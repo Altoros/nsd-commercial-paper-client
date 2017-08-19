@@ -27,6 +27,13 @@ services:
       - API=http://api.b.nsd.ru:4000
     command: npm run sign
 
+  sign.c.nsd.ru:
+    extends: base
+    container_name: sign.c.nsd.ru
+    environment:
+      - API=http://api.c.nsd.ru:4000
+    command: npm run sign
+
   download.nsd.nsd.ru:
     extends: base
     container_name: download.nsd.nsd.ru
