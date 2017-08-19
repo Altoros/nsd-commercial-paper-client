@@ -22,6 +22,7 @@ if(!API){
 const USER = process.env.USER || 'signUser';
 
 const EVENT_INSTRUCTION_MATCHED = 'Instruction.matched';
+const EVENT_INSTRUCTION_EXECUTED = 'Instruction.executed';
 
 /**
  * @type {string} organisation ID
@@ -39,7 +40,7 @@ var endorsePeer = null;
 ////////////////////////////////////////////////////////////
 // rest client
 var client = new FabricRestClient(API);
-client.getConfig().then(config=>{
+client.getConfig().then(config => {
   // we have received ledger config
 
   // extract some stuff from config
@@ -63,13 +64,15 @@ client.getConfig().then(config=>{
   socket.on('chainblock', function (block) {
     block = tools.replaceBuffer(block); // encode all buffer data with base64 string
 
-    var iInfoArr = helper.getBlockInstructions(block, EVENT_INSTRUCTION_MATCHED) || [];
-    if(iInfoArr.length==0) return;
+    var iInfoArr = helper.getBlockInstructions(block, EVENT_INSTRUCTION_EXECUTED) || [];
+    if(iInfoArr.length === 0) {
+      return;
+    }
 
     // sign and send instructions (use chainPromise to send requests sequentually)
     return tools.chainPromise(iInfoArr, function(iInfo){
       var instruction = helper.normalizeInstruction(iInfo.payload);
-      return Promise.resolve(_processInstruction(instruction, iInfo.channel_id))
+      return Promise.resolve(_processInstruction(instruction, iInfo.channel_id));
     });
   });
 
@@ -92,7 +95,7 @@ client.getConfig().then(config=>{
       return;
     }
 
-    var delay = role != 'receiver' ? 0 : 5000; // TODO: receiver delay
+    var delay = role !== 'receiver' ? 5000 : 10000; // TODO: receiver delay
     logger.trace('Delay signing for %s ms', delay);
     return timeoutPromise(delay).then(function(){
       // TODO: not really need always sign up
@@ -115,12 +118,14 @@ client.getConfig().then(config=>{
 
 
 function timeoutPromise(interval){
-  var p = new Promise((resolve, reject)=>{
-    if(interval==0){
-      process.nextTick(resolve)
-    } else {
+  var p = new Promise((resolve, reject) => {
+    if(interval == 0) {
+      process.nextTick(resolve);
+    }
+    else {
       var timer = setTimeout(resolve, interval);
     }
   });
+
   return p;
 }
