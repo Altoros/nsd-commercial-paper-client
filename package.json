@@ -6,8 +6,11 @@
     "sign": "node $NODE_DEBUG_OPTION sign",
     "download": "node $NODE_DEBUG_OPTION download",
 
-    "sign-dev": "API=http://localhost:4001 USER=signUser node $NODE_DEBUG_OPTION sign",
-    "download-dev": "API=http://localhost:4001 node $NODE_DEBUG_OPTION download",
+    "sign-a": "API=http://localhost:4001 node $NODE_DEBUG_OPTION sign",
+    "sign-b": "API=http://localhost:4002 node $NODE_DEBUG_OPTION sign",
+    "sign-c": "API=http://localhost:4003 node $NODE_DEBUG_OPTION sign",
+
+    "download-dev": "API=http://localhost:4000 node $NODE_DEBUG_OPTION download",
     "test": "mocha"
   },
   "author": "Maksim Chartkou <maksim.chartkou@altoros.com>",
