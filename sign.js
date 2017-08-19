@@ -6,7 +6,7 @@ const FabricSocketClient = require('./lib/FabricSocketClient');
 const FabricRestClient   = require('./lib/FabricRestClient');
 const log4js  = require('log4js');
 log4js.configure( require('./config.json').log4js );
-const logger  = log4js.getLogger('index');
+const logger  = log4js.getLogger('sign');
 
 const tools   = require('./lib/tools');
 const helper  = require('./lib/helper');
@@ -68,7 +68,8 @@ client.getConfig().then(config=>{
 
     // sign and send instructions (use chainPromise to send requests sequentually)
     return tools.chainPromise(iInfoArr, function(iInfo){
-      return Promise.resolve(_processInstruction(iInfo.payload, iInfo.channel_id));
+      var instruction = helper.normalizeInstruction(iInfo.payload);
+      return Promise.resolve(_processInstruction(instruction, iInfo.channel_id))
     });
   });
 
@@ -76,21 +77,32 @@ client.getConfig().then(config=>{
   // PROCESS INSTRUCTION
 
   function _processInstruction(instruction, channel_id){
+    logger.trace('_processInstruction channel - %s:', channel_id, JSON.stringify(instruction));
+
+    // skip already signed
+    if(!helper.getRoleInInstruction(instruction, deponent)){
+      logger.debug('Deponent %s not a member of instruction:', deponent, helper.instruction2string(instruction));
+      return;
+    }
+
+    // skip already signed
+    if(signer.isSigned(instruction, deponent)){
+      logger.debug('Already signed by %s:', deponent, helper.instruction2string(instruction));
+      return;
+    }
+
     // TODO: not really need always sign up
     return client.signUp(USER).then(function(/*body*/){
-      // skip already signed
-      if(signer.isSigned(instruction, deponent)){
-        logger.debug('Already signed by %s:', deponent, helper.instruction2string(instruction));
-        return;
-      }
-
       var signature = signer.signInstruction(instruction, deponent);
       logger.debug('Signed:', signature);
 
       return client.sendSignature(channel_id, [endorsePeer], instruction, signature);
     }).then(function(result){
-      logger.debug('signature sent:', JSON.stringify(result));
+      logger.debug('Signature sent:', JSON.stringify(result));
+    }).catch(function(e){
+      logger.error('Sign error:', e);
     });
+
   }
 
 
