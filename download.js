@@ -55,7 +55,7 @@ client.getConfig().then(config=>{
   var endorsePeerId = Object.keys(config['network-config'][org]||{}).filter(k=>k.startsWith('peer'))[0];
   endorsePeer = org+'/'+endorsePeerId;
 
-  logger.info('****************************************');
+  logger.info('************* DOWNLOAD APP *************');
   logger.info('API:\t%s', API);
   logger.info('FOLDER_SAVE:\t%s', FOLDER_SAVE);
   logger.info('USER:\t%s', USER);
