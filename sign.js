@@ -49,7 +49,7 @@ client.getConfig().then(config => {
   var endorsePeerId = Object.keys(config['network-config'][org]||{}).filter(k=>k.startsWith('peer'))[0];
   endorsePeer = org+'/'+endorsePeerId;
 
-  logger.info('****************************************');
+  logger.info('************** SIGN APP ****************');
   logger.info('API:\t%s', API);
   logger.info('USER:\t%s', USER);
   logger.info('ORG:\t%s', org);
@@ -95,7 +95,7 @@ client.getConfig().then(config => {
       return;
     }
 
-    var delay = role !== 'receiver' ? 0 : 10000; // TODO: delay receiver execution over transferer
+    var delay = role !== 'receiver' ? 0 : 0*10000; // TODO: delay receiver execution over transferer
     logger.trace('Delay signing for %s ms', delay);
     return timeoutPromise(delay).then(function(){
       // TODO: not really need always sign up

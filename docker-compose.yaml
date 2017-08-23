@@ -7,35 +7,37 @@ version: '2'
 
 services:
 
-  base:
-    image: node:6-alpine
-    volumes:
-      - ./:/usr/src
-    working_dir: /usr/src
-
   sign.a.nsd.ru:
-    extends: base
+    extends:
+      file:   base.yaml
+      service: base
     container_name: sign.a.nsd.ru
     environment:
       - API=http://api.a.nsd.ru:4000
     command: npm run sign
 
   sign.b.nsd.ru:
-    extends: base
+    extends:
+      file:   base.yaml
+      service: base
     container_name: sign.b.nsd.ru
     environment:
       - API=http://api.b.nsd.ru:4000
     command: npm run sign
 
   sign.c.nsd.ru:
-    extends: base
+    extends:
+      file:   base.yaml
+      service: base
     container_name: sign.c.nsd.ru
     environment:
       - API=http://api.c.nsd.ru:4000
     command: npm run sign
 
   download.nsd.nsd.ru:
-    extends: base
+    extends:
+      file:   base.yaml
+      service: base
     container_name: download.nsd.nsd.ru
     environment:
       - API=http://api.nsd.nsd.ru:4000

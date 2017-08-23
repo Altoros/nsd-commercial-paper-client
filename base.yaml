@@ -1,0 +1,11 @@
+# Copyright Altoros. All Rights Reserved.
+#
+
+version: '2'
+services:
+
+  base:
+    image: node:6-alpine
+    volumes:
+      - ./:/usr/src
+    working_dir: /usr/src
