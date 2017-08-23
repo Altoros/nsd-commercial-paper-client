@@ -13,6 +13,14 @@ change `sign` method in [./lib/signer.js](./lib/signer.js)
 and signatures form both parties and save into a local file to be picked up by Alameda; upon success 
 will update the instruction record on the ledger with `downloaded` status.
 
+Prerequisites
+==========
+
+```bash
+curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
+sudo apt install nodejs jq
+```
+
 Install
 ==========
 
