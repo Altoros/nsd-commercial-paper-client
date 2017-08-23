@@ -31,13 +31,75 @@ Run
 
 Signer app
 -----------
-`API=http://localhost:4001 USER=signUser npm run sign`
+`API=http://localhost:4000 USER=signUser npm run sign`
+
+You can use any user: this field will become part of transaction creator to identify the process that signed. 
 
 Downloader app
 -------------- 
 `API=http://localhost:4000 FOLDER_SAVE=../savehere USER=downloadUser npm run download`
 
+Alameda files from both transferer and receiver are saved along with their signatures into a json file:
 
+```json
+{
+  "alamedaFrom": "\n<Batch>\n<Documents_amount>1</Documents_amount>\n<Document DOC_ID=\"1\" version=\"7\">\n<ORDER_HEADER>\n<deposit_c>NDC000000000</deposit_c>\n<contrag_c>CA9861913023</contrag_c>\n<contr_d_id>100</contr_d_id>\n<createdate>2017-08-23</createdate>\n<order_t_id>16</order_t_id>\n<execute_dt>2017-08-23</execute_dt>\n<expirat_dt>2017-08-24 23:59:59</expirat_dt>\n</ORDER_HEADER>\n<MF010>\n<dep_acc_c>AC0689654902</dep_acc_c>\n<sec_c>87680000045800005</sec_c>\n<deponent_c>CA9861913023</deponent_c>\n<corr_acc_c>WD0D00654903</corr_acc_c>\n<corr_sec_c>58680002816000009</corr_sec_c>\n<corr_code>DE000DB7HWY7</corr_code>\n<based_on>1000</based_on>\n<based_numb>10000</based_numb>\n<based_date>2017-08-23</based_date>\n<securities><security>\n<security_c>RU000ABC0001</security_c>\n<security_q>1</security_q>\n</security>\n</securities>\n<deal_reference>testc</deal_reference>\n<date_deal>2017-08-23</date_deal>\n</MF010>\n</Document>\n</Batch>\n",
+  "alamedaTo": "\n<Batch>\n<Documents_amount>1</Documents_amount>\n<Document DOC_ID=\"1\" version=\"7\">\n<ORDER_HEADER>\n<deposit_c>NDC000000000</deposit_c>\n<contrag_c>DE000DB7HWY7</contrag_c>\n<contr_d_id>200</contr_d_id>\n<createdate>2017-08-23</createdate>\n<order_t_id>16/1</order_t_id>\n<execute_dt>2017-08-23</execute_dt>\n<expirat_dt>2017-08-24 23:59:59</expirat_dt>\n</ORDER_HEADER>\n<MF010>\n<dep_acc_c>AC0689654902</dep_acc_c>\n<sec_c>87680000045800005</sec_c>\n<deponent_c>CA9861913023</deponent_c>\n<corr_acc_c>WD0D00654903</corr_acc_c>\n<corr_sec_c>58680002816000009</corr_sec_c>\n<corr_code>DE000DB7HWY7</corr_code>\n<based_on>2000</based_on>\n<based_numb>20000</based_numb>\n<based_date>2017-08-22</based_date>\n<securities><security>\n<security_c>RU000ABC0001</security_c>\n<security_q>1</security_q>\n</security>\n</securities>\n<deal_reference>testc</deal_reference>\n<date_deal>2017-08-23</date_deal>\n</MF010>\n</Document>\n</Batch>\n",
+  "alamedaSignatureFrom": "326f12f744953100ad4fbcd3e8f6b254417c791edcb8d6b37b0f47dba60145e1",
+  "alamedaSignatureTo": "90880405b6b4122085f4e0c5ba40d8bb18318a5c7632e683d56d2bfd5493cabb"
+}
+```
+
+The name of the file is composed of the 9 fields that uniquely identify an instruction for matching:
+`RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testc-20170823-20170823.json`
+
+To parse out xml files and signatures you can use `jq` utility:
+
+```bash
+cat RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testc-20170823-20170823.json | jq -r .alamedaFrom
+cat RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testc-20170823-20170823.json | jq -r .alamedaTo
+cat RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testc-20170823-20170823.json | jq -r .alamedaSignatureFrom
+cat RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testc-20170823-20170823.json | jq -r .alamedaSignatureTo
+``` 
+
+Parsed out xml:
+
+```xml
+<?xml version="1.0"?>
+<Batch>
+  <Documents_amount>1</Documents_amount>
+  <Document DOC_ID="1" version="7">
+    <ORDER_HEADER>
+      <deposit_c>NDC000000000</deposit_c>
+      <contrag_c>CA9861913023</contrag_c>
+      <contr_d_id>100</contr_d_id>
+      <createdate>2017-08-23</createdate>
+      <order_t_id>16</order_t_id>
+      <execute_dt>2017-08-23</execute_dt>
+      <expirat_dt>2017-08-24 23:59:59</expirat_dt>
+    </ORDER_HEADER>
+    <MF010>
+      <dep_acc_c>AC0689654902</dep_acc_c>
+      <sec_c>87680000045800005</sec_c>
+      <deponent_c>CA9861913023</deponent_c>
+      <corr_acc_c>WD0D00654903</corr_acc_c>
+      <corr_sec_c>58680002816000009</corr_sec_c>
+      <corr_code>DE000DB7HWY7</corr_code>
+      <based_on>1000</based_on>
+      <based_numb>10000</based_numb>
+      <based_date>2017-08-23</based_date>
+      <securities>
+        <security>
+          <security_c>RU000ABC0001</security_c>
+          <security_q>1</security_q>
+        </security>
+      </securities>
+      <deal_reference>testc</deal_reference>
+      <date_deal>2017-08-23</date_deal>
+    </MF010>
+  </Document>
+</Batch>
+```
 
 Development
 -----------
