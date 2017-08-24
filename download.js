@@ -15,7 +15,7 @@ const helper  = require('./lib/helper');
 const signer  = require('./lib/signer');
 
 
-//
+// get parameters
 const API = process.env.API;
 if(!API){
   throw new Error("API is not set. Please, use environment to set it");
@@ -32,7 +32,11 @@ const USER = process.env.USER || 'signUser';
 mkdirSyncSafe(FOLDER_SAVE);
 
 
+//
 const EVENT_INSTRUCTION_SIGNED = 'Instruction.signed';
+
+const INSTRUCTION_SIGNED_STATUS = 'signed';
+// const INSTRUCTION_EXECUTED_STATUS = 'executed';
 
 /**
  * @type {string} organisation deponent code
@@ -52,14 +56,13 @@ client.getConfig().then(config=>{
   // extract some stuff from config
   org = config.org;
   deponent = config['account-config'][org].dep;
-  var endorsePeerId = Object.keys(config['network-config'][org]||{}).filter(k=>k.startsWith('peer'))[0];
-  endorsePeer = org+'/'+endorsePeerId;
+  endorsePeer = client._getEndorserOrgPeerId();
 
   logger.info('************* DOWNLOAD APP *************');
   logger.info('API:\t%s', API);
   logger.info('FOLDER_SAVE:\t%s', FOLDER_SAVE);
   logger.info('USER:\t%s', USER);
-  logger.info('ENDORSER:\t%s', endorsePeer);
+  logger.info('ENDORSER:\t%s', endorsePeer );
   logger.info('****************************************');
 
 
@@ -81,21 +84,62 @@ client.getConfig().then(config=>{
     });
   });
 
+  socket.on('connect', function () {
+    logger.debug('Process missed instructions');
+    // run check on connect/reconnect, so we'll process all missed records
+    _querySignedInstructions()
+        .catch(e=>{
+          console.log(e);
+        });
+  });
 
+
+
+
+
+  // QUERY INSTRUCTIONS
+
+  function _querySignedInstructions(){
+    return client.signUp(USER)
+      .then(()=>client.getAllInstructions(endorsePeer/*, INSTRUCTION_SIGNED_STATUS*/))
+      .then(function(instructionInfoList){
+        // typeof instructionInfoList is {Array<{channel_id:string, instruction:instruction}>}
+        logger.debug('Got %s instruction(s) to download', instructionInfoList.length);
+
+        return tools.chainPromise(instructionInfoList, function(instructionInfo){
+          var channelID = instructionInfo.channel_id;
+          var instruction = instructionInfo.instruction;
+
+          if(instruction.status !== INSTRUCTION_SIGNED_STATUS){
+            logger.warn('Skip instruction with status "%s" (not "%s")', instruction.status, INSTRUCTION_SIGNED_STATUS);
+            return;
+          }
+
+          return _processInstruction(instruction, channelID)
+            .catch(e=>{
+              logger.error('_processInstruction failed:', e);
+            });
+        });
+      });
+  }
 
 
   // PROCESS INSTRUCTION
 
+  /**
+   * @return {Promise}
+   */
   function _processInstruction(instruction, channel_id){
-    logger.trace('_processInstruction channel - %s:', channel_id, JSON.stringify(instruction));
+    // logger.trace('_processInstruction channel - %s:', channel_id, JSON.stringify(instruction));
+    logger.trace('_processInstruction channel - %s:', channel_id, helper.instruction2string(instruction));
     if(!signer.isSignedAll(instruction)){
       logger.debug('Not signed by all members:', helper.instruction2string(instruction));
       return;
     }else{
-      logger.debug('Instruction has signed by all members:', helper.instruction2string(instruction));
+      logger.debug('Instruction is signed by all members:', helper.instruction2string(instruction));
     }
 
-    // TODO data format ewxample
+    // TODO data format example
     var fileData = {
       alamedaFrom : instruction.alamedaFrom,
       alamedaTo   : instruction.alamedaTo,
@@ -106,22 +150,19 @@ client.getConfig().then(config=>{
 
     return writeFilePromise(filepath, JSON.stringify(fileData))
       .then(function(){
-        logger.debug('File write succeed: %s', filepath);
+        logger.info('File write succeed: %s', filepath);
 
-        // TODO: not really need always sign up
-        // return client.signUp(USER);
-      }).then(function(/*body*/){
-
-        // TODO: do we really need such status?
-        // return client.setInstructionStatus(channel_id, [endorsePeer], instruction, 'downloaded');
-      }).then(function(result){
-        // logger.debug('Status updated for:', helper.instruction2string(instruction));
+        // // TODO: not really need always sign up
+        // return client.signUp(USER)
+        //   .then(()=>client.setInstructionStatus(channel_id, [endorsePeer], instruction, 'downloaded'))
+        //   .then(function(result){
+        //     logger.debug('Status updated for:', helper.instruction2string(instruction));
+        //   });
       })
       .catch(function(e){
         logger.error('Script error:', e);
       });
   }
-
 
 });
 
