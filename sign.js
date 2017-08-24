@@ -88,7 +88,7 @@ client.getConfig().then(config => {
   function _processExecutedInstructions(){
     logger.info('Process missed instructions');
     return client.signUp(USER)
-      .then(()=>client.getAllInstructions(endorsePeer/*, INSTRUCTION_EXECUTED_STATUS*/))
+      .then(()=>client.getAllInstructions(endorsePeer/*, INSTRUCTION_EXECUTED_STATUS*/)) // TODO: uncomment this line when 'key' will be received
       .then(function(instructionInfoList){
         // typeof instructionInfoList is {Array<{channel_id:string, instruction:instruction}>}
         logger.debug('Got %s instruction(s) to process', instructionInfoList.length);

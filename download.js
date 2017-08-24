@@ -98,7 +98,7 @@ client.getConfig().then(config=>{
   function _processSignedInstructions(){
     logger.info('Process missed instructions');
     return client.signUp(USER)
-      .then(()=>client.getAllInstructions(endorsePeer/*, INSTRUCTION_SIGNED_STATUS*/))
+      .then(()=>client.getAllInstructions(endorsePeer/*, INSTRUCTION_SIGNED_STATUS*/)) // TODO: uncomment this line when 'key' will be received
       .then(function(instructionInfoList){
         // typeof instructionInfoList is {Array<{channel_id:string, instruction:instruction}>}
         logger.debug('Got %s instruction(s) to download', instructionInfoList.length);
@@ -152,12 +152,12 @@ client.getConfig().then(config=>{
       .then(function(){
         logger.info('File write succeed: %s', filepath);
 
-        // // TODO: not really need always sign up
-        // return client.signUp(USER)
-        //   .then(()=>client.setInstructionStatus(channel_id, [endorsePeer], instruction, 'downloaded'))
-        //   .then(function(result){
-        //     logger.debug('Status updated for:', helper.instruction2string(instruction));
-        //   });
+        // TODO: not really need always sign up
+        return client.signUp(USER)
+          .then(()=>client.setInstructionStatus(channel_id, [endorsePeer], instruction, 'downloaded'))
+          .then(function(result){
+            logger.debug('Status updated for:', helper.instruction2string(instruction));
+          });
       })
       .catch(function(e){
         logger.error('Script error:', e);
