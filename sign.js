@@ -2,6 +2,8 @@
  * Created by maksim on 8/16/17.
  */
 
+const fs  = require('fs');
+const path  = require('path');
 const FabricSocketClient = require('./lib/FabricSocketClient');
 const FabricRestClient   = require('./lib/FabricRestClient');
 const log4js  = require('log4js');
@@ -25,6 +27,13 @@ const EVENT_INSTRUCTION_MATCHED = 'Instruction.matched';
 const EVENT_INSTRUCTION_EXECUTED = 'Instruction.executed';
 // const INSTRUCTION_SIGNED_STATUS = 'signed';
 const INSTRUCTION_EXECUTED_STATUS = 'executed';
+
+var AUTOSIGN = process.env.AUTOSIGN || false;
+
+var FOLDER_SAVE = process.env.FOLDER_SAVE || './alameda';
+if(!path.isAbsolute(FOLDER_SAVE)){
+  FOLDER_SAVE = path.join(__dirname, FOLDER_SAVE);
+}
 
 /**
  * @type {string} organisation ID
@@ -102,11 +111,13 @@ client.getConfig().then(config => {
             return;
           }
 
-          return _processInstruction(instruction, channelID)
-            .catch(e=>{
+          let ret = _processInstruction(instruction, channelID)
+
+          if(ret) {
+            ret.catch(e=>{
               logger.error('_processExecutedInstructions failed:', e);
             });
-
+          }
         });
       })
       .catch(e=>{
@@ -134,23 +145,37 @@ client.getConfig().then(config => {
       return;
     }
 
-    var delay = 0;// role !== 'receiver' ? 0 : 0*10000; // TODO: delay receiver execution over transferer
-    logger.trace('Delay signing for %s ms', delay);
-    return timeoutPromise(delay)
-    .then(function(){
-      // TODO: not really need always sign up
-      return client.signUp(USER);
-    }).then(function(/*body*/){
-      var signature = signer.signInstruction(instruction, deponent);
-      logger.debug('Instruction signed ', helper.instruction2string(instruction), signature);
+    if(AUTOSIGN) {
+      var delay = 0;// role !== 'receiver' ? 0 : 0*10000; // TODO: delay receiver execution over transferer
+      logger.trace('Delay signing for %s ms', delay);
+      return timeoutPromise(delay)
+      .then(function(){
+        // TODO: not really need always sign up
+        return client.signUp(USER);
+      }).then(function(/*body*/){
+        var signature = signer.signInstruction(instruction, deponent);
+        logger.debug('Instruction signed ', helper.instruction2string(instruction), signature);
 
-      return client.sendSignature(channel_id, [endorsePeer], instruction, signature);
-    }).then(function(result){
-      logger.info('Signature sent for', helper.instruction2string(instruction), JSON.stringify(result));
-    }).catch(function(e){
-      logger.error('Sign error:', e);
-    });
+        return client.sendSignature(channel_id, [endorsePeer], instruction, signature);
+      }).then(function(result){
+        logger.info('Signature sent for', helper.instruction2string(instruction), JSON.stringify(result));
+      }).catch(function(e){
+        logger.error('Sign error:', e);
+      });
+    }
+    else {
+      let filepath = path.join(FOLDER_SAVE, helper.instructionFilename(instruction)+'.xml');
 
+      let fileData = role === 'transferer' ? instruction.alamedaFrom : instruction.alamedaTo;
+
+      return writeFilePromise(filepath, JSON.parse(JSON.stringify(fileData)))
+      .then(function(){
+        logger.info('File write succeeded: %s', filepath);
+      })
+      .catch(function(e){
+        logger.error('Script error:', e);
+      });
+    }
   }
 
 
@@ -168,4 +193,16 @@ function timeoutPromise(interval){
   });
 
   return p;
+}
+
+/**
+ * @param
+ */
+//TODO move duplicate code to helper
+function writeFilePromise(filepath, data){
+  return new Promise(function(resolve, reject){
+    fs.writeFile(filepath, data, function(err){
+      err ? reject(err) : resolve();
+    });
+  });
 }

@@ -22,21 +22,21 @@ signature=$(base64 --wrap=0 ${filename})
 
 args="[\"${accountFrom}\",\"${divisionFrom}\",\"${accountTo}\",\"${divisionTo}\",\"${security}\",\"${quantity}\",\"${reference}\",\"${instructionDate}\",\"${tradeDate}\",\"${signature}\"]"
 
-echo "post request to enroll ${USER} to ${API_SERVER}"
-res=$(curl -s -X POST ${API_SERVER}/users -H "content-type: application/x-www-form-urlencoded" -d "username=${USER}")
+echo "post request to enroll ${USER} to ${API}"
+res=$(curl -s -X POST ${API}/users -H "content-type: application/x-www-form-urlencoded" -d "username=${USER}")
 echo "responded ${res}"
 token=$(echo ${res} | jq -r ".token")
 echo "enrolled with token=${token}"
 
 echo "post request to sign with $args"
-res=$(curl -s -X POST ${API_SERVER}/channels/${channel}/chaincodes/instruction -H "authorization: Bearer $token" -H "content-type: application/json" -d "{\"peers\":[\"$ORG/peer0\"],\"fcn\":\"sign\",\"args\":$args}")
+res=$(curl -s -X POST ${API}/channels/${channel}/chaincodes/instruction -H "authorization: Bearer $token" -H "content-type: application/json" -d "{\"peers\":[\"$ORG/peer0\"],\"fcn\":\"sign\",\"args\":$args}")
 echo "responded ${res}"
-ok=$(echo ${res} | jq -r ".ok")
+transaction=$(echo ${res} | jq -r ".transaction")
 
-if [ ${ok} == true ]; then
-  echo "OK uploaded signature"
-  exit 0
-else
+if [ ${transaction} == "null" ]; then
   echo "ERROR cannot upload signature"
   exit 1
+else
+  echo "OK uploaded signature"
+  exit 0
 fi

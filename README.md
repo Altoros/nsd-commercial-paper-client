@@ -29,15 +29,25 @@ Install
 Run
 ===
 
-Automatic Signer app
+Signer app
 -----------
-`API=http://localhost:4000 USER=signUser npm run sign`
+`API=http://localhost:4000 npm run sign`
+
+Optional arguments:
+
+- AUTOSIGN=true: Sign the instruction and upload the signature automatically.
+- USER=signUser: Specify user other than currently logged in as the creator of the transaction.
 
 You can omit USER or pass any string: this field will become part of transaction creator to identify the process that signed. 
 
 Downloader app
 -------------- 
-`API=http://localhost:4000 FOLDER_SAVE=../savehere USER=downloadUser npm run download`
+`API=http://localhost:4000 npm run download`
+
+Optional arguments:
+
+- FOLDER_SAVE=./saveHere: Specify directory other than the default `./alameda`.
+- USER=downloadUser: Specify user other than currently logged in as the creator of the transaction.
 
 Alameda files from both transferer and receiver are saved along with their signatures into a json file:
 
@@ -119,13 +129,13 @@ Manual Signer App
 If you sign xmls manually you can use [upload](./upload.sh) script to manually upload signatures from files:
 
 ```
-ORG=<your org alias> CHANNEL=<channel name> API_SERVER=http://<ip within your org intranet>:4000 ./upload.sh <name of signed xml file> 
+ORG=<your org alias> CHANNEL=<channel name> API=http://<ip within your org intranet>:4000 ./upload.sh <name of signed xml file> 
 ```
 
 Example:
 
 ```bash
-ORG=raiffeisen CHANNEL=megafon-raiffeisen API_SERVER=http://localhost:4000 ./upload.sh sample-signed.xml 
+ORG=raiffeisen CHANNEL=megafon-raiffeisen API=http://localhost:4000 ./upload.sh alameda/RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testa-20170824-20170824.xml 
 ```
 
 Development

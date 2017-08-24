@@ -140,13 +140,14 @@ client.getConfig().then(config=>{
     }
 
     // TODO data format example
-    var fileData = {
+    let fileData = {
       alamedaFrom : instruction.alamedaFrom,
       alamedaTo   : instruction.alamedaTo,
       alamedaSignatureFrom : instruction.alamedaSignatureFrom,
       alamedaSignatureTo   : instruction.alamedaSignatureTo,
     };
-    var filepath = path.join(FOLDER_SAVE, helper.instructionFilename(instruction)+'.json');
+
+    let filepath = path.join(FOLDER_SAVE, helper.instructionFilename(instruction)+'.json');
 
     return writeFilePromise(filepath, JSON.stringify(fileData))
       .then(function(){
@@ -171,9 +172,9 @@ client.getConfig().then(config=>{
  * @param {string} folder
  */
 function mkdirSyncSafe(folder){
-  try{
+  try {
     fs.mkdirSync(FOLDER_SAVE);
-  }catch(e){
+  } catch(e){
     if(e.code != 'EEXIST'){
       throw e;
     }
