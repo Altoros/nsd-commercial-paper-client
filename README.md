@@ -101,6 +101,39 @@ Parsed out xml:
 </Batch>
 ```
 
+Signatures can also be sent to the API server via http post:
+
+```bash
+ORG1_ENDPOINT='http://localhost:4000'
+
+echo
+echo
+echo "POST request Enroll on Org1  ..."
+echo
+ORG1_TOKEN=$(curl -s -X POST $ORG1_ENDPOINT/users \
+    -H "content-type: application/x-www-form-urlencoded" \
+    -d 'username=org1-signer')
+ORG1_TOKEN=$(echo $ORG1_TOKEN | jq ".token" | sed "s/\"//g")
+echo $ORG1_TOKEN
+echo
+echo "ORG1 token is $ORG1_TOKEN"
+echo
+
+
+echo "POST instantiate chaincode on peer1 of Org1"
+echo
+curl -s -X POST \
+  $ORG1_ENDPOINT/channels/a-b/chaincodes/instruction \
+  -H "authorization: Bearer $ORG1_TOKEN" \
+  -H "content-type: application/json" \
+  -d '{                                                                                                         
+  "peers":["a/peer0"],                                                                                          
+  "functionName":"sign",                                                                                        
+  "args":["AC0689654902","87680000045800005","WD0D00654903","58680002816000009", "RU000ABC0001", "1", "test", "\
+2017-08-24", "2017-08-24", "my-signature"]                                                                      
+}'
+```
+
 Development
 -----------
 
