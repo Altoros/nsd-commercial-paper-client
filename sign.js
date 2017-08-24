@@ -23,6 +23,8 @@ const USER = process.env.USER || 'signUser';
 
 const EVENT_INSTRUCTION_MATCHED = 'Instruction.matched';
 const EVENT_INSTRUCTION_EXECUTED = 'Instruction.executed';
+// const INSTRUCTION_SIGNED_STATUS = 'signed';
+const INSTRUCTION_EXECUTED_STATUS = 'executed';
 
 /**
  * @type {string} organisation ID
@@ -46,15 +48,14 @@ client.getConfig().then(config => {
   // extract some stuff from config
   org = config.org;
   deponent = config['account-config'][org].dep;
-  var endorsePeerId = Object.keys(config['network-config'][org]||{}).filter(k=>k.startsWith('peer'))[0];
-  endorsePeer = org+'/'+endorsePeerId;
+  endorsePeer = client._getEndorserOrgPeerId();
 
   logger.info('************** SIGN APP ****************');
   logger.info('API:\t%s', API);
   logger.info('USER:\t%s', USER);
   logger.info('ORG:\t%s', org);
   logger.info('DEPONENT:\t%s', deponent);
-  logger.info('ENDORSER:\t%s', endorsePeer);
+  logger.info('ENDORSER:\t%s', endorsePeer );
   logger.info('****************************************');
 
 
@@ -76,11 +77,49 @@ client.getConfig().then(config => {
     });
   });
 
+  socket.on('connect', function () {
+    logger.debug('Process missed instructions');
+    // run check on connect/reconnect, so we'll process all missed records
+    _queryExecutedInstructions()
+        .catch(e=>{
+          console.log(e);
+        });
+  });
+
+
+  // QUERY INSTRUCTIONS
+
+  function _queryExecutedInstructions(){
+    return client.signUp(USER)
+      .then(()=>client.getAllInstructions(endorsePeer/*, INSTRUCTION_EXECUTED_STATUS*/))
+      .then(function(instructionInfoList){
+        // typeof instructionInfoList is {Array<{channel_id:string, instruction:instruction}>}
+        logger.debug('Got %s instruction(s) to process', instructionInfoList.length);
+
+        return tools.chainPromise(instructionInfoList, function(instructionInfo){
+          var channelID = instructionInfo.channel_id;
+          var instruction = instructionInfo.instruction;
+
+          if(instruction.status !== INSTRUCTION_EXECUTED_STATUS){
+            logger.warn('Skip instruction with status "%s" (not "%s")', instruction.status, INSTRUCTION_EXECUTED_STATUS);
+            return;
+          }
+
+          return _processInstruction(instruction, channelID)
+            .catch(e=>{
+              logger.error('_processInstruction failed:', e);
+            });
+
+        });
+      });
+  }
+
 
   // PROCESS INSTRUCTION
 
   function _processInstruction(instruction, channel_id){
-    logger.trace('_processInstruction channel - %s:', channel_id, JSON.stringify(instruction));
+    // logger.trace('_processInstruction channel - %s:', channel_id, JSON.stringify(instruction));
+    logger.trace('_processInstruction channel - %s:', channel_id,  helper.instruction2string(instruction));
 
     // skip already signed
     var role = helper.getRoleInInstruction(instruction, deponent);
@@ -95,18 +134,19 @@ client.getConfig().then(config => {
       return;
     }
 
-    var delay = role !== 'receiver' ? 0 : 0*10000; // TODO: delay receiver execution over transferer
+    var delay = 0;// role !== 'receiver' ? 0 : 0*10000; // TODO: delay receiver execution over transferer
     logger.trace('Delay signing for %s ms', delay);
-    return timeoutPromise(delay).then(function(){
+    return timeoutPromise(delay)
+    .then(function(){
       // TODO: not really need always sign up
       return client.signUp(USER);
     }).then(function(/*body*/){
       var signature = signer.signInstruction(instruction, deponent);
-      logger.debug('Signed:', signature);
+      logger.debug('Instruction signed ', helper.instruction2string(instruction), signature);
 
       return client.sendSignature(channel_id, [endorsePeer], instruction, signature);
     }).then(function(result){
-      logger.debug('Signature sent:', JSON.stringify(result));
+      logger.info('Signature sent for', helper.instruction2string(instruction), JSON.stringify(result));
     }).catch(function(e){
       logger.error('Sign error:', e);
     });
