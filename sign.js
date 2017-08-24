@@ -78,18 +78,15 @@ client.getConfig().then(config => {
   });
 
   socket.on('connect', function () {
-    logger.debug('Process missed instructions');
     // run check on connect/reconnect, so we'll process all missed records
-    _processExecutedInstructions()
-        .catch(e=>{
-          console.log(e);
-        });
+    _processExecutedInstructions();
   });
 
 
   // QUERY INSTRUCTIONS
 
   function _processExecutedInstructions(){
+    logger.info('Process missed instructions');
     return client.signUp(USER)
       .then(()=>client.getAllInstructions(endorsePeer/*, INSTRUCTION_EXECUTED_STATUS*/))
       .then(function(instructionInfoList){
@@ -111,6 +108,9 @@ client.getConfig().then(config => {
             });
 
         });
+      })
+      .catch(e=>{
+        logger.error(e);
       });
   }
 

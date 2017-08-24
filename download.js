@@ -85,12 +85,8 @@ client.getConfig().then(config=>{
   });
 
   socket.on('connect', function () {
-    logger.debug('Process missed instructions');
     // run check on connect/reconnect, so we'll process all missed records
-    _processSignedInstructions()
-        .catch(e=>{
-          console.log(e);
-        });
+    _processSignedInstructions();
   });
 
 
@@ -100,6 +96,7 @@ client.getConfig().then(config=>{
   // QUERY INSTRUCTIONS
 
   function _processSignedInstructions(){
+    logger.info('Process missed instructions');
     return client.signUp(USER)
       .then(()=>client.getAllInstructions(endorsePeer/*, INSTRUCTION_SIGNED_STATUS*/))
       .then(function(instructionInfoList){
@@ -120,6 +117,9 @@ client.getConfig().then(config=>{
               logger.error('_processSignedInstructions failed:', e);
             });
         });
+      })
+      .catch(e=>{
+        logger.error(e);
       });
   }
 
