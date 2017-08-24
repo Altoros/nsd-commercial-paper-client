@@ -29,11 +29,11 @@ Install
 Run
 ===
 
-Signer app
+Automatic Signer app
 -----------
 `API=http://localhost:4000 USER=signUser npm run sign`
 
-You can use any user: this field will become part of transaction creator to identify the process that signed. 
+You can omit USER or pass any string: this field will become part of transaction creator to identify the process that signed. 
 
 Downloader app
 -------------- 
@@ -56,13 +56,25 @@ The name of the file is composed of the 9 fields that uniquely identify an instr
 To parse out xml files and signatures you can use `jq` utility:
 
 ```bash
-cat RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testc-20170823-20170823.json | jq -r .alamedaFrom
-cat RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testc-20170823-20170823.json | jq -r .alamedaTo
-cat RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testc-20170823-20170823.json | jq -r .alamedaSignatureFrom
-cat RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testc-20170823-20170823.json | jq -r .alamedaSignatureTo
+cat RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testc-20170823-20170823.json | \
+jq -r .alamedaFrom
+cat RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testc-20170823-20170823.json | \
+jq -r .alamedaTo
+cat RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testc-20170823-20170823.json | \
+jq -r .alamedaSignatureFrom
+cat RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testc-20170823-20170823.json | \
+jq -r .alamedaSignatureTo
 ``` 
 
-Parsed out xml:
+To parse out and decode signature:
+
+```bash
+cat RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testc-20170823-20170823.json | \
+jq -r .alamedaSignatureFrom | \
+base64 -d -
+```
+
+Example of parsed out xml:
 
 ```xml
 <?xml version="1.0"?>
@@ -107,7 +119,6 @@ Signatures can also be sent to the API server via http post:
 ORG1_ENDPOINT='http://localhost:4000'
 
 echo
-echo
 echo "POST request Enroll on Org1  ..."
 echo
 ORG1_TOKEN=$(curl -s -X POST $ORG1_ENDPOINT/users \
@@ -132,6 +143,21 @@ curl -s -X POST \
   "args":["AC0689654902","87680000045800005","WD0D00654903","58680002816000009", "RU000ABC0001", "1", "test", "\
 2017-08-24", "2017-08-24", "my-signature"]                                                                      
 }'
+```
+
+Manual Signer App
+-----------
+
+If you sign xmls manually you can use [upload](./upload.sh) script to manually upload signatures from files:
+
+```
+ORG=<your org alias> CHANNEL=<channel name> API_SERVER=http://<ip within your org intranet>:4000 ./upload.sh <name of signed xml file> 
+```
+
+Example:
+
+```bash
+ORG=raiffeisen CHANNEL=megafon-raiffeisen API_SERVER=http://54.161.190.237:4000 ./upload.sh sample-signed.xml 
 ```
 
 Development
