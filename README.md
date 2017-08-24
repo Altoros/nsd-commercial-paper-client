@@ -125,11 +125,11 @@ ORG=<your org alias> CHANNEL=<channel name> API_SERVER=http://<ip within your or
 Example:
 
 ```bash
-ORG=raiffeisen CHANNEL=megafon-raiffeisen API_SERVER=http://54.161.190.237:4000 ./upload.sh sample-signed.xml 
+ORG=raiffeisen CHANNEL=megafon-raiffeisen API_SERVER=http://localhost:4000 ./upload.sh sample-signed.xml 
 ```
 
 Development
------------
+===========
 
 You can use docker-compose to run all the necessary services in addition to the basic project  
 `docker-compose up -d`  
