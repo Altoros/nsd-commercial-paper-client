@@ -7,31 +7,22 @@ version: '2'
 
 services:
 
-  sign.a.nsd.ru:
+  sign.raiffeisen.nsd.ru:
     extends:
       file:   base.yaml
       service: base
-    container_name: sign.a.nsd.ru
+    container_name: sign.raiffeisen.nsd.ru
     environment:
-      - API=http://api.a.nsd.ru:4000
+      - API=http://api.raiffeisen.nsd.ru:4000
     command: npm run sign
 
-  sign.b.nsd.ru:
+  sign.megafon.nsd.ru:
     extends:
       file:   base.yaml
       service: base
-    container_name: sign.b.nsd.ru
+    container_name: sign.megafon.nsd.ru
     environment:
-      - API=http://api.b.nsd.ru:4000
-    command: npm run sign
-
-  sign.c.nsd.ru:
-    extends:
-      file:   base.yaml
-      service: base
-    container_name: sign.c.nsd.ru
-    environment:
-      - API=http://api.c.nsd.ru:4000
+      - API=http://api.megafon.nsd.ru:4000
     command: npm run sign
 
   download.nsd.nsd.ru:
