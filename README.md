@@ -24,30 +24,36 @@ sudo apt install nodejs jq
 Install
 ==========
 
-`npm install`
+```bash
+git clone https://github.com/olegabu/nsd-commercial-paper-client
+cd nsd-commercial-paper-client
+npm install
+```
 
 Run
 ===
 
 Signer app
 -----------
-`API=http://localhost:4000 npm run sign`
+`npm run sign`
 
 Optional arguments:
 
 - AUTOSIGN=true: Sign the instruction and upload the signature automatically.
 - USER=signUser: Specify user other than currently logged in as the creator of the transaction.
+- API defaults to `http://localhost:4000`.
 
 You can omit USER or pass any string: this field will become part of transaction creator to identify the process that signed. 
 
 Downloader app
 -------------- 
-`API=http://localhost:4000 npm run download`
+`npm run download`
 
 Optional arguments:
 
 - FOLDER_SAVE=./saveHere: Specify directory other than the default `./alameda`.
 - USER=downloadUser: Specify user other than currently logged in as the creator of the transaction.
+- API defaults to `http://localhost:4000`.
 
 Alameda files from both transferer and receiver are saved along with their signatures into a json file:
 
@@ -63,65 +69,20 @@ Alameda files from both transferer and receiver are saved along with their signa
 The name of the file is composed of the 9 fields that uniquely identify an instruction for matching:
 `RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testc-20170823-20170823.json`
 
-To parse out xml files and signatures you can use `jq` utility:
+To parse out xml files and signatures you can use [parse](./parse.sh) script and pass the name of the json file:
 
 ```bash
-cat RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testc-20170823-20170823.json | \
-jq -r .alamedaFrom
-cat RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testc-20170823-20170823.json | \
-jq -r .alamedaTo
-cat RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testc-20170823-20170823.json | \
-jq -r .alamedaSignatureFrom
-cat RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testc-20170823-20170823.json | \
-jq -r .alamedaSignatureTo
+./parse.sh alameda/RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testb-20170824-20170824.json
 ``` 
 
-To parse out and decode signature:
+The script will save 4 xml files: instructions 16 and 16/1 and both signatures:
 
-```bash
-cat RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testc-20170823-20170823.json | \
-jq -r .alamedaSignatureFrom | \
-base64 -d -
 ```
-
-Example of parsed out xml:
-
-```xml
-<?xml version="1.0"?>
-<Batch>
-  <Documents_amount>1</Documents_amount>
-  <Document DOC_ID="1" version="7">
-    <ORDER_HEADER>
-      <deposit_c>NDC000000000</deposit_c>
-      <contrag_c>CA9861913023</contrag_c>
-      <contr_d_id>100</contr_d_id>
-      <createdate>2017-08-23</createdate>
-      <order_t_id>16</order_t_id>
-      <execute_dt>2017-08-23</execute_dt>
-      <expirat_dt>2017-08-24 23:59:59</expirat_dt>
-    </ORDER_HEADER>
-    <MF010>
-      <dep_acc_c>AC0689654902</dep_acc_c>
-      <sec_c>87680000045800005</sec_c>
-      <deponent_c>CA9861913023</deponent_c>
-      <corr_acc_c>WD0D00654903</corr_acc_c>
-      <corr_sec_c>58680002816000009</corr_sec_c>
-      <corr_code>DE000DB7HWY7</corr_code>
-      <based_on>1000</based_on>
-      <based_numb>10000</based_numb>
-      <based_date>2017-08-23</based_date>
-      <securities>
-        <security>
-          <security_c>RU000ABC0001</security_c>
-          <security_q>1</security_q>
-        </security>
-      </securities>
-      <deal_reference>testc</deal_reference>
-      <date_deal>2017-08-23</date_deal>
-    </MF010>
-  </Document>
-</Batch>
-```
+RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testb-20170824-20170824.json-alamedaFrom.xml
+RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testb-20170824-20170824.json-alamedaTo.xml
+RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testb-20170824-20170824.json-alamedaSignatureFrom.xml
+RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testb-20170824-20170824.json-alamedaSignatureTo.xml
+```  
 
 Manual Signer App
 -----------
@@ -132,10 +93,12 @@ If you sign xmls manually you can use [upload](./upload.sh) script to manually u
 ORG=<your org alias> CHANNEL=<channel name> API=http://<ip within your org intranet>:4000 ./upload.sh <name of signed xml file> 
 ```
 
+`API` is optional and defaults to `http://localhost:4000` 
+
 Example:
 
 ```bash
-ORG=raiffeisen CHANNEL=megafon-raiffeisen API=http://localhost:4000 ./upload.sh alameda/RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testa-20170824-20170824.xml 
+ORG=raiffeisen CHANNEL=megafon-raiffeisen ./upload.sh alameda/RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testa-20170824-20170824.xml 
 ```
 
 Development

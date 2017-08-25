@@ -3,6 +3,8 @@
 channel=${CHANNEL}
 filename=$1
 
+: ${API:="http://localhost:4000"}
+
 function parse() {
   element=$1
   echo $(sed -ne "s/.*<$element>\(.*\)<\/$element>.*/\1/gp" ${filename})

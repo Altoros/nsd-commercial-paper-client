@@ -14,9 +14,8 @@ const tools   = require('./lib/tools');
 const helper  = require('./lib/helper');
 const signer  = require('./lib/signer');
 
-
-//
-const API = process.env.API;
+// get parameters
+const API = process.env.API || 'http://localhost:4000';
 if(!API){
   throw new Error("API is not set. Please, use environment to set it");
 }

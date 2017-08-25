@@ -14,11 +14,10 @@ const tools   = require('./lib/tools');
 const helper  = require('./lib/helper');
 const signer  = require('./lib/signer');
 
-
 // get parameters
-const API = process.env.API;
+const API = process.env.API || 'http://localhost:4000';
 if(!API){
-  throw new Error("API is not set. Please, use environment to set it");
+  throw new Error("API is not set. Please use environment to set it");
 }
 
 var FOLDER_SAVE = process.env.FOLDER_SAVE || './alameda';
