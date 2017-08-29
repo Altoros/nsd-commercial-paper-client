@@ -37,17 +37,29 @@ Signer app
 -----------
 `npm run sign`
 
+Stop signer app:
+
+`pkill -f 'node sign'` 
+
 Optional arguments:
 
 - AUTOSIGN=true: Sign the instruction and upload the signature automatically.
 - USER=signUser: Specify user other than currently logged in as the creator of the transaction.
 - API defaults to `http://localhost:4000`.
 
-You can omit USER or pass any string: this field will become part of transaction creator to identify the process that signed. 
+You can omit USER or pass any string: this field will become part of transaction creator to identify the process that signed.
+
+Stop signer app:
+
+`pkill -f 'node sign'` 
 
 Downloader app
 -------------- 
 `npm run download`
+
+Stop downloader app:
+
+`pkill -f 'node download'` 
 
 Optional arguments:
 
