@@ -7,7 +7,7 @@ filename=$1
 
 function parse() {
   element=$1
-  echo $(sed -ne "s/.*<$element>\(.*\)<\/$element>.*/\1/gp" ${filename})
+  echo $(sed -ne "s/.*<$element>\([^ ]*\).*<\/$element>.*/\1/gp" ${filename})
 }
 
 accountFrom=$(parse "dep_acc_c")
