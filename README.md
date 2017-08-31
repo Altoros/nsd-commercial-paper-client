@@ -96,7 +96,7 @@ RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-tes
 RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testb-20170824-20170824.json-alamedaSignatureTo.xml
 ```  
 
-Manual Uploader App
+Manual Uploader App (members upload signed xml files)
 -----------
 
 If you sign xmls manually you can use [upload](./upload.sh) script to manually upload signatures from files:
