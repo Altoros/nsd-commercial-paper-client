@@ -33,7 +33,7 @@ npm install
 Run
 ===
 
-Signer app
+Signer app (download xml files to be signed by members)
 -----------
 `npm run sign`
 
@@ -53,7 +53,7 @@ Stop signer app:
 
 `pkill -f 'node sign'` 
 
-Downloader app
+Downloader app (download signed files for consumption of Alameda)
 -------------- 
 `npm run download`
 
@@ -96,7 +96,7 @@ RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-tes
 RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testb-20170824-20170824.json-alamedaSignatureTo.xml
 ```  
 
-Manual Signer App
+Manual Uploader App
 -----------
 
 If you sign xmls manually you can use [upload](./upload.sh) script to manually upload signatures from files:
@@ -113,8 +113,3 @@ Example:
 ORG=raiffeisen CHANNEL=megafon-raiffeisen ./upload.sh alameda/RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testa-20170824-20170824.xml 
 ```
 
-Development
-===========
-
-You can use docker-compose to run all the necessary services in addition to the basic project  
-`docker-compose up -d`  
