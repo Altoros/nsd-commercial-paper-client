@@ -33,7 +33,7 @@ npm install
 Run
 ===
 
-Signer app (download xml files to be signed by members)
+Signer app (download xml files from blockchain to be signed by members)
 -----------
 `npm run sign`
 
@@ -53,7 +53,7 @@ Stop signer app:
 
 `pkill -f 'node sign'` 
 
-Downloader app (download signed files for consumption of Alameda)
+Downloader app (download signed files from blockchain for consumption by Alameda)
 -------------- 
 `npm run download`
 
@@ -96,7 +96,7 @@ RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-tes
 RU000ABC0001-AC0689654902-87680000045800005-WD0D00654903-58680002816000009-1-testb-20170824-20170824.json-alamedaSignatureTo.xml
 ```  
 
-Manual Uploader App (members upload signed xml files)
+Manual Uploader App (members upload signed xml files to blockchain)
 -----------
 
 If you sign xmls manually you can use [upload](./upload.sh) script to manually upload signatures from files:
