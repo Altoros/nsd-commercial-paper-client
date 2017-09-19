@@ -12,7 +12,7 @@ export USER
 
 function startSignUp1 () {
   echo "Starting downloader app for nsd"
-  docker-compose up -d download.megafon.nsd.ru
+  docker-compose up -d download.nsd.nsd.ru
 }
 
 function startSignUp2 () {
