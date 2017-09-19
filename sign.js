@@ -34,6 +34,16 @@ if(!path.isAbsolute(FOLDER_SAVE)){
   FOLDER_SAVE = path.join(__dirname, FOLDER_SAVE);
 }
 
+try{
+  fs.mkdirSync(FOLDER_SAVE);
+}catch(e){
+  if (e.code != 'EEXIST'){
+    throw e;
+  }else{
+    logger.debug('Folder created:', FOLDER_SAVE);
+  }
+}
+
 /**
  * @type {string} organisation ID
  */
