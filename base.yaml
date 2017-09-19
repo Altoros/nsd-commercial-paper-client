@@ -8,6 +8,7 @@ services:
     image: node:6-alpine
     environment:
       - FOLDER_SAVE=${FOLDER_SAVE}
+      - USER=${USER}
     volumes:
       - ./:/usr/src
     working_dir: /usr/src

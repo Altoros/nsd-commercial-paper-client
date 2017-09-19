@@ -17,17 +17,27 @@ Prerequisites
 ==========
 
 ```bash
-curl -sL https://deb.nodesource.com/setup_8.x | sudo -E bash -
-sudo apt install -y nodejs jq enca
+sudo apt update && sudo apt -y install docker docker-compose
 ```
+
+On other Linux distros make sure these versions or higher are installed:
+
+- docker-compose version 1.8.0
+- Docker version 1.12.6
+
+Add yourself to the group and re-login to be able to run docker.
+
+```bash
+sudo gpasswd -a $USER docker
+exit
+```
+
 
 Install
 ==========
 
 ```bash
-git clone https://github.com/olegabu/nsd-commercial-paper-client
-cd nsd-commercial-paper-client
-npm install
+./network.sh -m install
 ```
 
 Run
@@ -35,25 +45,39 @@ Run
 
 Signer app (download xml files from blockchain to be signed by members)
 -----------
-`npm run sign`
+```bash
+./network.sh -m up
+```
+
+Or start with an explicit point to the organisation:
+
+
+* for megafon  
+```bash
+./network.sh -m up-2 
+```
+
+* for raiffeisen  
+```bash
+./network.sh -m up-3 
+```
+
 
 Stop signer app:
 
-`pkill -f 'node sign'` 
+`./network.sh -m down` 
 
 Optional arguments:
 
-- AUTOSIGN=true: Sign the instruction and upload the signature automatically.
+- FOLDER_SAVE=./saveHere: Specify directory other than the default `./alameda` (either absolute or relative path accepted).
 - USER=signUser: Specify user other than currently logged in as the creator of the transaction.
 - API defaults to `http://localhost:4000`.
+- AUTOSIGN=true: Sign the instruction and upload the signature automatically.
 
 You can omit USER or pass any string: this field will become part of transaction creator to identify the process that signed.
 
-Stop signer app:
 
-`pkill -f 'node sign'` 
-
-Downloader app (download signed files from blockchain for consumption by Alameda)
+Downloader app(deprecated) (download signed files from blockchain for consumption by Alameda)
 -------------- 
 `npm run download`
 

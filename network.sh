@@ -4,7 +4,11 @@ STARTTIME=$(date +%s)
 
 # defaults; export these variables before executing this script
 : ${FOLDER_SAVE:="alameda"}
+: ${USER="signUser"}
+
+
 export FOLDER_SAVE
+export USER
 
 function startSignUp2 () {
   echo "Starting sign app for megafon"
@@ -16,6 +20,7 @@ function startSignUp3 () {
   docker-compose up -d sign.raiffeisen.nsd.ru
 }
 
+# find api cntainer and launch sign app for it
 function startSignUp () {
   container=$(docker ps -f name=api.* --format "{{.Names}}" |tail -n 1 |sed -e s/api\./sign./)
   echo "Starting sign app for: $container"
@@ -40,18 +45,29 @@ function logDev () {
 }
 
 
+function installNodeModules() {
+  echo
+  if [ -d node_modules ]; then
+    echo "============== node modules installed already ============="
+  else
+    echo "============== Installing node modules ============="
+    docker run --rm -w /usr/src -v $PWD:/usr/src node:6-alpine npm install
+  fi
+  echo
+}
+
 
 
 
 # Print the usage message
 function printHelp () {
   echo "Usage: "
-  echo "  network.sh -m up-2|up-3"
+  echo "  network.sh -m install|up|down|logs"
   echo "  network.sh -h|--help (print this message)"
-  echo "    -m <mode> - one of 'up-2', 'up-3'"
+  echo "    -m <mode> - one of 'install', 'up', 'down', 'logs'"
   echo
-  echo "  network.sh -m up-2"
-  echo "  network.sh -m up-3"
+  echo "  network.sh -m install"
+  echo "  network.sh -m up"
 }
 
 # Parse commandline args
@@ -68,10 +84,12 @@ while getopts "h?m:" opt; do
   esac
 done
 
-if [ "${MODE}" == "up-2" ]; then
-  startSignUp2
+if [ "${MODE}" == "install" ] || [ "${MODE}" == "generate" ]; then
+  installNodeModules
 elif [ "${MODE}" == "up-3" ]; then
   startSignUp3
+elif [ "${MODE}" == "up-2" ]; then
+  startSignUp2
 elif [ "${MODE}" == "up" ]; then
   startSignUp
 elif [ "${MODE}" == "devup" ]; then
