@@ -10,6 +10,11 @@ STARTTIME=$(date +%s)
 export FOLDER_SAVE
 export USER
 
+function startSignUp1 () {
+  echo "Starting downloader app for nsd"
+  docker-compose up -d download.megafon.nsd.ru
+}
+
 function startSignUp2 () {
   echo "Starting sign app for megafon"
   docker-compose up -d sign.megafon.nsd.ru
@@ -22,8 +27,13 @@ function startSignUp3 () {
 
 # find api cntainer and launch sign app for it
 function startSignUp () {
-  container=$(docker ps -f name=api.* --format "{{.Names}}" |tail -n 1 |sed -e s/api\./sign./)
-  echo "Starting sign app for: $container"
+  container=$(docker ps -f name=api.* --format "{{.Names}}" |head -n 1)   
+  if [ "$container" == "api.nsd.nsd.ru" ]; then
+    container=$(echo $container |sed -e s/api\./download./)
+  else
+    container=$(echo $container |sed -e s/api\./sign./)
+  fi;
+  echo "Starting app: $container"
   docker-compose up -d $container
 }
 
@@ -90,6 +100,8 @@ elif [ "${MODE}" == "up-3" ]; then
   startSignUp3
 elif [ "${MODE}" == "up-2" ]; then
   startSignUp2
+elif [ "${MODE}" == "up-1" ]; then
+  startSignUp1
 elif [ "${MODE}" == "up" ]; then
   startSignUp
 elif [ "${MODE}" == "devup" ]; then

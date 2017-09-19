@@ -17,7 +17,7 @@ Prerequisites
 ==========
 
 ```bash
-sudo apt update && sudo apt -y install docker docker-compose
+sudo apt update && sudo apt -y install docker docker-compose jq enca
 ```
 
 On other Linux distros make sure these versions or higher are installed:
@@ -49,7 +49,7 @@ Signer app (download xml files from blockchain to be signed by members)
 ./network.sh -m up
 ```
 
-Or start with an explicit point to the organisation:
+Or start with an explicit point to the organisation (no autodetection):
 
 
 * for megafon  
@@ -77,13 +77,23 @@ Optional arguments:
 You can omit USER or pass any string: this field will become part of transaction creator to identify the process that signed.
 
 
-Downloader app(deprecated) (download signed files from blockchain for consumption by Alameda)
+Downloader app (download signed files from blockchain for consumption by Alameda)
 -------------- 
-`npm run download`
+```bash
+./network.sh -m up
+```
+
+Or start with an explicit application (no autodetection):
+
+* for nsd  
+```bash
+./network.sh -m up-1 
+```
+
 
 Stop downloader app:
 
-`pkill -f 'node download'` 
+`./network.sh -m down` 
 
 Optional arguments:
 
