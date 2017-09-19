@@ -47,14 +47,7 @@ Run
 
 Signer app (download xml files from blockchain to be signed by members)  
 
-Run on both megafon and raiffeisen
------------
-```bash
-./network.sh -m up
-```
-
-Or start with an explicit point to the organisation (no autodetection):
-
+Run on megafon and raiffeisen:
 
 * for megafon  
 ```bash
@@ -65,6 +58,7 @@ Or start with an explicit point to the organisation (no autodetection):
 ```bash
 ./network.sh -m up-3 
 ```
+`
 
 
 Stop signer app:
@@ -87,14 +81,7 @@ Downloader app (download signed files from blockchain for consumption by Alameda
 Run on nsd only:
 
 ```bash
-./network.sh -m up
-```
-
-Or start with an explicit application (no autodetection):
-
-* for nsd  
-```bash
-./network.sh -m up-1 
+./network.sh -m up-1
 ```
 
 
