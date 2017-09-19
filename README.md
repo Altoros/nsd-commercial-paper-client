@@ -37,13 +37,17 @@ Install
 ==========
 
 ```bash
+git clone https://github.com/olegabu/nsd-commercial-paper-client
+cd nsd-commercial-paper-client
 ./network.sh -m install
 ```
 
 Run
 ===
 
-Signer app (download xml files from blockchain to be signed by members)
+Signer app (download xml files from blockchain to be signed by members)  
+
+Run on both megafon and raiffeisen
 -----------
 ```bash
 ./network.sh -m up
@@ -79,6 +83,9 @@ You can omit USER or pass any string: this field will become part of transaction
 
 Downloader app (download signed files from blockchain for consumption by Alameda)
 -------------- 
+
+Run on nsd only:
+
 ```bash
 ./network.sh -m up
 ```
