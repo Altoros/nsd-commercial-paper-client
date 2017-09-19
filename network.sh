@@ -16,6 +16,12 @@ function startSignUp3 () {
   docker-compose up -d sign.raiffeisen.nsd.ru
 }
 
+function startSignUp () {
+  container=$(docker ps -f name=api.* --format "{{.Names}}" |tail -n 1 |sed -e s/api\./sign./)
+  echo "Starting sign app for: $container"
+  docker-compose up -d $container
+}
+
 function startSignUpDev () {
   echo "Starting sign app for megafon and raiffeisen"
   FOLDER_SAVE="alameda-megafon"
@@ -67,6 +73,8 @@ if [ "${MODE}" == "up-2" ]; then
 elif [ "${MODE}" == "up-3" ]; then
   startSignUp3
 elif [ "${MODE}" == "up" ]; then
+  startSignUp
+elif [ "${MODE}" == "devup" ]; then
   startSignUpDev
 elif [ "${MODE}" == "down" ]; then
   stopSignDev
