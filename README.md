@@ -17,7 +17,7 @@ Prerequisites
 ==========
 
 ```bash
-sudo apt update && sudo apt -y install docker docker-compose jq enca
+sudo apt update && sudo apt -y install docker docker-compose jq enca git
 ```
 
 On other Linux distros make sure these versions or higher are installed:
@@ -32,7 +32,6 @@ sudo gpasswd -a $USER docker
 exit
 ```
 
-
 Install
 ==========
 
@@ -41,6 +40,12 @@ git clone https://github.com/olegabu/nsd-commercial-paper-client
 cd nsd-commercial-paper-client
 ./network.sh -m install
 ```
+
+(optional) Pull docker image in advance in order to follow the next steps in private network (without access to docker hub):
+```bash
+docker pull node:6-alpine
+```
+
 
 Run
 ===
