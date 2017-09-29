@@ -149,29 +149,12 @@ ORG=raiffeisen CHANNEL=megafon-raiffeisen ./upload.sh alameda/RU000ABC0001-AC068
 Convert xml files to Windows encoding
 -----------
 
-You can convert downloaded files to `Windows-1251` encoding before signing:
+_manual conversion not required anymore_
 
-```bash
-./convert-to-windows.sh alameda/RU0DLTMFONCB-MFONISSUEACC-19000000000000000-RBIOWNER0ACC-00000000000000000-1-TESTH-20170903-20170903.xml
-```
-
-will create a new file with `-windows` added to its name: `alameda/RU0DLTMFONCB-MFONISSUEACC-19000000000000000-RBIOWNER0ACC-00000000000000000-1-TESTH-20170903-20170903-windows.xml`.
-
-You can then sign this converted file and upload its signature.
-
-To convert downloaded files before loading to Alameda:
-
-```bash
-./convert-to-windows.sh alameda/RU0DLTMFONCB-MFONISSUEACC-19000000000000000-RBIOWNER0ACC-00000000000000000-1-TESTH-20170903-20170903.json-alamedaFrom.xml
-```
-
-will create a new file with `-windows` added to its name: `alameda/RU0DLTMFONCB-MFONISSUEACC-19000000000000000-RBIOWNER0ACC-00000000000000000-1-TESTH-20170903-20170903.json-alamedaFrom-windows.xml`.
-
-The file is converted from `utf-8` to `Windows-1251` and has `encoding="Windows-1251"` added to its `xml` declaration.
 To check the encoding is correct use `enca` utility:
 
 ```bash
-enca -L ru alameda/RU0DLTMFONCB-MFONISSUEACC-19000000000000000-RBIOWNER0ACC-00000000000000000-1-TESTH-20170903-20170903.json-alamedaFrom-windows.xml
+enca -L ru alameda/RU0DLTMFONCB-MFONISSUEACC-19000000000000000-RBIOWNER0ACC-00000000000000000-1-TESTH-20170903-20170903.json-alamedaFrom.xml
 
 MS-Windows code page 1251
   LF line terminators

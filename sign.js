@@ -10,6 +10,7 @@ const log4js  = require('log4js');
 log4js.configure( require('./config.json').log4js );
 const logger  = log4js.getLogger('sign');
 
+const iconv = require('iconv-lite');
 const tools   = require('./lib/tools');
 const helper  = require('./lib/helper');
 const signer  = require('./lib/signer');
@@ -177,7 +178,7 @@ client.getConfig().then(config => {
 
       let fileData = role === 'transferer' ? instruction.alamedaFrom : instruction.alamedaTo;
 
-      return writeFilePromise(filepath, JSON.parse(JSON.stringify(fileData)))
+      return writeFilePromise(filepath, convertXml(JSON.parse(JSON.stringify(fileData))))
       .then(function(){
         logger.info('File write succeeded: %s', filepath);
       })
@@ -189,6 +190,19 @@ client.getConfig().then(config => {
 
 
 });
+/**
+ * @return {Buffer}
+ */
+function convertXml(str){
+  // Convert from js string to an encoded buffer.
+  let buf = str;
+  buf = buf.replace('?>',' encoding="Windows-1251"?>');
+  buf = iconv.encode(str, 'win1251');
+//  buf = iconv.encode (iconv.decode (new Buffer(str,'binary'), 'utf8'), 'win1251');
+
+  return buf;
+}
+
 
 
 function timeoutPromise(interval){
@@ -208,9 +222,10 @@ function timeoutPromise(interval){
  * @param
  */
 //TODO move duplicate code to helper
-function writeFilePromise(filepath, data){
+function writeFilePromise(filepath, data, options){
+  options = options || {};
   return new Promise(function(resolve, reject){
-    fs.writeFile(filepath, data, function(err){
+    fs.writeFile(filepath, data, options, function(err){
       err ? reject(err) : resolve();
     });
   });

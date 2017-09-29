@@ -5,11 +5,9 @@
   "scripts": {
     "sign": "node $NODE_DEBUG_OPTION sign",
     "download": "node $NODE_DEBUG_OPTION download",
-
     "sign-a": "API=http://localhost:4001 node $NODE_DEBUG_OPTION sign",
     "sign-b": "API=http://localhost:4002 node $NODE_DEBUG_OPTION sign",
     "sign-c": "API=http://localhost:4003 node $NODE_DEBUG_OPTION sign",
-
     "download-dev": "API=http://localhost:4000 node $NODE_DEBUG_OPTION download",
     "test": "mocha"
   },
@@ -17,6 +15,7 @@
   "private": true,
   "license": "ISC",
   "dependencies": {
+    "iconv-lite": "^0.4.19",
     "log4js": "^2.3.3",
     "socket.io-client": "^2.0.3",
     "socketio": "^1.0.0"
