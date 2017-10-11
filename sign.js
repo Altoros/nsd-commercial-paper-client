@@ -13,6 +13,7 @@ const logger  = log4js.getLogger('sign');
 const tools   = require('./lib/tools');
 const helper  = require('./lib/helper');
 const signer  = require('./lib/signer');
+const MODE = '0666';
 
 // get parameters
 const API = process.env.API || 'http://localhost:4000';
@@ -177,7 +178,7 @@ client.getConfig().then(config => {
 
       let fileData = role === 'transferer' ? instruction.alamedaFrom : instruction.alamedaTo;
 
-      return writeFilePromise(filepath, JSON.parse(JSON.stringify(fileData)))
+      return writeFilePromise(filepath, JSON.parse(JSON.stringify(fileData)), {mode:MODE})
       .then(function(){
         logger.info('File write succeeded: %s', filepath);
       })
@@ -207,10 +208,13 @@ function timeoutPromise(interval){
 /**
  * @param
  */
-//TODO move duplicate code to helper
-function writeFilePromise(filepath, data){
+function writeFilePromise(filepath, data, options){
   return new Promise(function(resolve, reject){
-    fs.writeFile(filepath, data, function(err){
+    fs.writeFile(filepath, data, options, function(err){
+      if(options && options.mode){
+        // options.mode not working properlty?
+        fs.chmodSync(filepath, options.mode);
+      }
       err ? reject(err) : resolve();
     });
   });

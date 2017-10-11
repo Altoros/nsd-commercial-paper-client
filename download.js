@@ -13,6 +13,7 @@ const logger  = log4js.getLogger('download');
 const tools   = require('./lib/tools');
 const helper  = require('./lib/helper');
 const signer  = require('./lib/signer');
+const MODE = '0666';
 
 // get parameters
 const API = process.env.API || 'http://localhost:4000';
@@ -148,7 +149,7 @@ client.getConfig().then(config=>{
 
     let filepath = path.join(FOLDER_SAVE, helper.instructionFilename(instruction)+'.json');
 
-    return writeFilePromise(filepath, JSON.stringify(fileData))
+    return writeFilePromise(filepath, JSON.stringify(fileData), {mode:MODE})
       .then(function(){
         logger.info('File write succeed: %s', filepath);
 
@@ -184,10 +185,14 @@ function mkdirSyncSafe(folder){
 /**
  * @param
  */
-function writeFilePromise(filepath, data){
+function writeFilePromise(filepath, data, options){
   return new Promise(function(resolve, reject){
-    fs.writeFile(filepath, data, function(err){
+    fs.writeFile(filepath, data, options, function(err){
+      if(options && options.mode){
+        // options.mode not working properlty?
+        fs.chmodSync(filepath, options.mode);
+      }
       err ? reject(err) : resolve();
-    })
+    });
   });
 }
