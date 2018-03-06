@@ -160,29 +160,27 @@ client.getConfig().then(config => {
     }
 
     if(AUTOSIGN) {
-      var delay = 0;// role !== 'receiver' ? 0 : 0*10000; // TODO: delay receiver execution over transferer
-      logger.trace('Delay signing for %s ms', delay);
-      return timeoutPromise(delay)
-      .then(function(){
-        // TODO: not really need always sign up
-        return client.signUp(USER);
-      }).then(function(/*body*/){
-        var signature = signer.signInstruction(instruction, deponent);
-        logger.debug('Instruction signed ', helper.instruction2string(instruction), signature);
+      return Promise.resolve()
+        .then(function(){
+          // TODO: not really need always sign up
+          return client.signUp(USER);
+        }).then(function(/*body*/){
+          var signature = signer.signInstruction(instruction, deponent);
+          logger.debug('Instruction signed ', helper.instruction2string(instruction), signature);
 
-        return client.sendSignature(channel_id, [endorsePeer], instruction, signature);
-      }).then(function(result){
-        logger.info('Signature sent for', helper.instruction2string(instruction), JSON.stringify(result));
-      }).catch(function(e){
-        logger.error('Sign error:', e);
-      });
+          return client.sendSignature(channel_id, [endorsePeer], instruction, signature);
+        }).then(function(result){
+          logger.info('Signature sent for', helper.instruction2string(instruction), JSON.stringify(result));
+        }).catch(function(e){
+          logger.error('Sign error:', e);
+        });
     }
     else {
       let filepath = path.join(FOLDER_SAVE, helper.instructionFilename(instruction)+'.xml');
 
       let fileData = role === 'transferer' ? instruction.alamedaFrom : instruction.alamedaTo;
 
-      return writeFilePromise(filepath, JSON.parse(JSON.stringify(fileData)), {mode:MODE})
+      return writeFilePromise(filepath, clone(fileData), {mode:MODE})
         .then(function(){
           logger.info('File write succeeded: %s', filepath);
         })
@@ -194,6 +192,12 @@ client.getConfig().then(config => {
 
 
 });
+
+
+function clone(data){
+  return JSON.parse(JSON.stringify(data));
+}
+
 
 
 function timeoutPromise(interval){
