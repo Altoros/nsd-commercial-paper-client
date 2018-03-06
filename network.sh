@@ -5,10 +5,12 @@ STARTTIME=$(date +%s)
 # defaults; export these variables before executing this script
 : ${FOLDER_SAVE:="alameda"}
 : ${USER="signUser"}
+: ${AUTOSIGN="0"}
 
 
 export FOLDER_SAVE
 export USER
+export AUTOSIGN
 
 function startSignUp1 () {
   echo "Starting downloader app for nsd"
@@ -25,9 +27,9 @@ function startSignUp3 () {
   docker-compose up -d sign.raiffeisen.nsd.ru
 }
 
-# find api cntainer and launch sign app for it
+# find api container and launch sign app for it
 function startSignUp () {
-  container=$(docker ps -f name=api.* --format "{{.Names}}" |head -n 1)   
+  container=$(docker ps -f name=api.* --format "{{.Names}}" |head -n 1)
   if [ "$container" == "api.nsd.nsd.ru" ]; then
     container=$(echo $container |sed -e s/api\./download./)
   else
@@ -38,12 +40,18 @@ function startSignUp () {
 }
 
 function startSignUpDev () {
+
   echo "Starting sign app for megafon and raiffeisen"
+  AUTOSIGN=1
   FOLDER_SAVE="alameda-megafon"
   docker-compose up -d sign.megafon.nsd.ru
 
   FOLDER_SAVE="alameda-raiffeisen"
   docker-compose up -d sign.raiffeisen.nsd.ru
+
+  echo "Starting downloader app for nsd"
+  FOLDER_SAVE="alameda-nsd"
+  docker-compose up -d download.nsd.nsd.ru
 }
 function stopSignDev () {
   echo "Stopping sign/download apps"
@@ -106,7 +114,7 @@ elif [ "${MODE}" == "up" ]; then
   startSignUp
 elif [ "${MODE}" == "devup" ]; then
   startSignUpDev
-elif [ "${MODE}" == "down" ]; then
+elif [ "${MODE}" == "down" -o "${MODE}" == "devdown" ]; then
   stopSignDev
 elif [ "${MODE}" == "logs" ]; then
   logDev

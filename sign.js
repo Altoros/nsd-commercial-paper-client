@@ -28,7 +28,7 @@ const EVENT_INSTRUCTION_EXECUTED = 'Instruction.executed';
 // const INSTRUCTION_SIGNED_STATUS = 'signed';
 const INSTRUCTION_EXECUTED_STATUS = 'executed';
 
-var AUTOSIGN = process.env.AUTOSIGN || false;
+var AUTOSIGN = parseInt(process.env.AUTOSIGN);
 
 var FOLDER_SAVE = process.env.FOLDER_SAVE || './alameda';
 if(!path.isAbsolute(FOLDER_SAVE)){
@@ -37,13 +37,16 @@ if(!path.isAbsolute(FOLDER_SAVE)){
 
 try{
   fs.mkdirSync(FOLDER_SAVE);
+  logger.debug('Folder created:', FOLDER_SAVE);
 }catch(e){
   if (e.code != 'EEXIST'){
     throw e;
   }else{
-    logger.debug('Folder created:', FOLDER_SAVE);
+    logger.debug('Folder exists:', FOLDER_SAVE);
   }
 }
+
+
 
 /**
  * @type {string} organisation ID
@@ -75,6 +78,7 @@ client.getConfig().then(config => {
   logger.info('ORG:\t%s', org);
   logger.info('DEPONENT:\t%s', deponent);
   logger.info('ENDORSER:\t%s', endorsePeer );
+  logger.info('AUTOSIGN:\t%s', AUTOSIGN ? 'true' : 'false' );
   logger.info('****************************************');
 
 
@@ -179,12 +183,12 @@ client.getConfig().then(config => {
       let fileData = role === 'transferer' ? instruction.alamedaFrom : instruction.alamedaTo;
 
       return writeFilePromise(filepath, JSON.parse(JSON.stringify(fileData)), {mode:MODE})
-      .then(function(){
-        logger.info('File write succeeded: %s', filepath);
-      })
-      .catch(function(e){
-        logger.error('Script error:', e);
-      });
+        .then(function(){
+          logger.info('File write succeeded: %s', filepath);
+        })
+        .catch(function(e){
+          logger.error('Script error:', e);
+        });
     }
   }
 
