@@ -13,3 +13,13 @@ services:
     volumes:
       - ./:/usr/src
     working_dir: /usr/src
+
+  base-static:
+    image: pierrezemb/gostatic
+    ports:
+      - ${STATIC_PORT}:8043
+    volumes:
+      - ./${FOLDER_SAVE}:/srv/http
+
+
+

@@ -34,6 +34,26 @@ services:
       - API=http://api.nsd.nsd.ru:4000
     command: npm run download
 
+
+
+  static.nsd.nsd.ru:
+    extends:
+      file:   base.yaml
+      service: base-static
+    container_name: static.nsd.nsd.ru
+
+  static.raiffeisen.nsd.ru:
+    extends:
+      file:   base.yaml
+      service: base-static
+    container_name: static.raiffeisen.nsd.ru
+
+  static.megafon.nsd.ru:
+    extends:
+      file:   base.yaml
+      service: base-static
+    container_name: static.megafon.nsd.ru
+
 networks:
   default:
     external:

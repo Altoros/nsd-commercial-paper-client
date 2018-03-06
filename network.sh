@@ -6,11 +6,13 @@ STARTTIME=$(date +%s)
 : ${FOLDER_SAVE:="alameda"}
 : ${USER="signUser"}
 : ${AUTOSIGN="0"}
+: ${STATIC_PORT="8000"}
 
 
 export FOLDER_SAVE
 export USER
 export AUTOSIGN
+export STATIC_PORT
 
 function startSignUp1 () {
   echo "Starting downloader app for nsd"
@@ -43,15 +45,19 @@ function startSignUpDev () {
 
   echo "Starting sign app for megafon and raiffeisen"
   AUTOSIGN=1
+
   FOLDER_SAVE="alameda-megafon"
-  docker-compose up -d sign.megafon.nsd.ru
+  STATIC_PORT=8000
+  docker-compose up -d sign.megafon.nsd.ru static.megafon.nsd.ru
 
   FOLDER_SAVE="alameda-raiffeisen"
-  docker-compose up -d sign.raiffeisen.nsd.ru
+  STATIC_PORT=8001
+  docker-compose up -d sign.raiffeisen.nsd.ru static.raiffeisen.nsd.ru
 
   echo "Starting downloader app for nsd"
   FOLDER_SAVE="alameda-nsd"
-  docker-compose up -d download.nsd.nsd.ru
+  STATIC_PORT=8002
+  docker-compose up -d download.nsd.nsd.ru static.nsd.nsd.ru
 }
 function stopSignDev () {
   echo "Stopping sign/download apps"
