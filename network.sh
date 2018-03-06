@@ -47,16 +47,16 @@ function startSignUpDev () {
   AUTOSIGN=1
 
   FOLDER_SAVE="alameda-megafon"
-  STATIC_PORT=8000
+  STATIC_PORT=8001
   docker-compose up -d sign.megafon.nsd.ru static.megafon.nsd.ru
 
   FOLDER_SAVE="alameda-raiffeisen"
-  STATIC_PORT=8001
+  STATIC_PORT=8002
   docker-compose up -d sign.raiffeisen.nsd.ru static.raiffeisen.nsd.ru
 
   echo "Starting downloader app for nsd"
   FOLDER_SAVE="alameda-nsd"
-  STATIC_PORT=8002
+  STATIC_PORT=8000
   docker-compose up -d download.nsd.nsd.ru static.nsd.nsd.ru
 }
 function stopSignDev () {
