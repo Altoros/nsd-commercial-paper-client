@@ -58,7 +58,7 @@ typings/
 .env
 
 
-alameda/*json
-alameda/*xml
+alameda/*
+alameda-*
 
 /.idea/
