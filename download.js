@@ -80,7 +80,10 @@ client.getConfig().then(config=>{
     // sign and send instructions (use chainPromise to send requests sequentually)
     return tools.chainPromise(iInfoArr, function(iInfo){
       var instruction = helper.normalizeInstruction(iInfo.payload);
-      return Promise.resolve(_processInstruction(instruction, iInfo.channel_id));
+
+      if(instruction.status === INSTRUCTION_SIGNED_STATUS) {
+        return Promise.resolve(_processInstruction(instruction, iInfo.channel_id));
+      }
     });
   });
 
@@ -107,15 +110,14 @@ client.getConfig().then(config=>{
           var channelID = instructionInfo.channel_id;
           var instruction = instructionInfo.instruction;
 
-          if(instruction.status !== INSTRUCTION_SIGNED_STATUS){
-            logger.warn('Skip instruction with status "%s" (not "%s")', instruction.status, INSTRUCTION_SIGNED_STATUS);
-            return;
+          if(instruction.status === INSTRUCTION_SIGNED_STATUS){
+            return _processInstruction(instruction, channelID)
+              .catch(e=>{
+                logger.error('_processSignedInstructions failed:', e);
+              });
           }
 
-          return _processInstruction(instruction, channelID)
-            .catch(e=>{
-              logger.error('_processSignedInstructions failed:', e);
-            });
+          logger.log('Skip instruction with status "%s" (not "%s")', instruction.status, INSTRUCTION_SIGNED_STATUS);
         });
       })
       .catch(e=>{
@@ -129,9 +131,15 @@ client.getConfig().then(config=>{
   /**
    * @return {Promise}
    */
-  function _processInstruction(instruction, channel_id){
+  function _processInstruction(instruction, channel_id) {
     // logger.trace('_processInstruction channel - %s:', channel_id, JSON.stringify(instruction));
     logger.trace('_processInstruction channel - %s:', channel_id, helper.instruction2string(instruction));
+
+    if (instruction.status !== INSTRUCTION_SIGNED_STATUS) {
+      logger.warn('Skip instruction with status "%s" (not "%s")', instruction.status, INSTRUCTION_SIGNED_STATUS);
+      return;
+    }
+
     if(!signer.isSignedAll(instruction)){
       logger.debug('Not signed by all members:', helper.instruction2string(instruction));
       return;
@@ -173,7 +181,7 @@ client.getConfig().then(config=>{
  */
 function mkdirSyncSafe(folder){
   try {
-    fs.mkdirSync(FOLDER_SAVE);
+    fs.mkdirSync(FOLDER_SAVE, {mode:MODE})
   } catch(e){
     if(e.code != 'EEXIST'){
       throw e;
