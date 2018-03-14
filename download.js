@@ -77,6 +77,7 @@ client.getConfig().then(config=>{
     var iInfoArr = helper.getBlockInstructions(block, EVENT_INSTRUCTION_SIGNED) || [];
     if(iInfoArr.length==0) return;
 
+    logger.debug('iInfoArr:', iInfoArr.length, JSON.stringify(iInfoArr));
     // sign and send instructions (use chainPromise to send requests sequentually)
     return tools.chainPromise(iInfoArr, function(iInfo){
       var instruction = helper.normalizeInstruction(iInfo.payload);
@@ -103,6 +104,13 @@ client.getConfig().then(config=>{
     return client.signUp(USER)
       .then(()=>client.getAllInstructions(endorsePeer/*, INSTRUCTION_SIGNED_STATUS*/)) // TODO: uncomment this line when 'key' will be received
       .then(function(instructionInfoList){
+        return instructionInfoList.filter(function(instructionInfo){
+          // var channelID = instructionInfo.channel_id;
+          var instruction = instructionInfo.instruction;
+          return instruction.status === INSTRUCTION_SIGNED_STATUS;
+        });
+      })
+      .then(function(instructionInfoList){
         // typeof instructionInfoList is {Array<{channel_id:string, instruction:instruction}>}
         logger.debug('Got %s instruction(s) to download', instructionInfoList.length);
 
@@ -110,14 +118,11 @@ client.getConfig().then(config=>{
           var channelID = instructionInfo.channel_id;
           var instruction = instructionInfo.instruction;
 
-          if(instruction.status === INSTRUCTION_SIGNED_STATUS){
-            return _processInstruction(instruction, channelID)
-              .catch(e=>{
-                logger.error('_processSignedInstructions failed:', e);
-              });
-          }
-
-          logger.log('Skip instruction with status "%s" (not "%s")', instruction.status, INSTRUCTION_SIGNED_STATUS);
+          return Promise.resolve()
+            .then(() => _processInstruction(instruction, channelID) )
+            .catch(e => {
+              logger.error('_processSignedInstructions failed:', e);
+            });
         });
       })
       .catch(e=>{
@@ -133,7 +138,7 @@ client.getConfig().then(config=>{
    */
   function _processInstruction(instruction, channel_id) {
     // logger.trace('_processInstruction channel - %s:', channel_id, JSON.stringify(instruction));
-    logger.trace('_processInstruction channel - %s:', channel_id, helper.instruction2string(instruction));
+    logger.trace('_processInstruction channel - %s:', channel_id, helper.instruction2string(instruction), instruction.status);
 
     if (instruction.status !== INSTRUCTION_SIGNED_STATUS) {
       logger.warn('Skip instruction with status "%s" (not "%s")', instruction.status, INSTRUCTION_SIGNED_STATUS);

@@ -36,7 +36,7 @@ if(!path.isAbsolute(FOLDER_SAVE)){
 }
 
 try{
-  fs.mkdirSync(FOLDER_SAVE);
+  fs.mkdirSync(FOLDER_SAVE, {mode:MODE})
   logger.debug('Folder created:', FOLDER_SAVE);
 }catch(e){
   if (e.code != 'EEXIST'){
@@ -94,10 +94,11 @@ client.getConfig().then(config => {
     }
 
     // sign and send instructions (use chainPromise to send requests sequentually)
-    return tools.chainPromise(iInfoArr, function(iInfo){
-      var instruction = helper.normalizeInstruction(iInfo.payload);
-      return Promise.resolve(_processInstruction(instruction, iInfo.channel_id));
-    });
+    return tools.timeoutPromise(5000) // wait for orchestrator do their stuff
+      .then(() => tools.chainPromise(iInfoArr, function(iInfo) {
+        var instruction = helper.normalizeInstruction(iInfo.payload);
+        return Promise.resolve(_processInstruction(instruction, iInfo.channel_id));
+      }));
   });
 
   socket.on('connect', function () {
@@ -113,6 +114,13 @@ client.getConfig().then(config => {
     return client.signUp(USER)
       .then(()=>client.getAllInstructions(endorsePeer/*, INSTRUCTION_EXECUTED_STATUS*/)) // TODO: uncomment this line when 'key' will be received
       .then(function(instructionInfoList){
+        return instructionInfoList.filter(function(instructionInfo){
+          // var channelID = instructionInfo.channel_id;
+          var instruction = instructionInfo.instruction;
+          return instruction.status === INSTRUCTION_EXECUTED_STATUS;
+        });
+      })
+      .then(function(instructionInfoList){
         // typeof instructionInfoList is {Array<{channel_id:string, instruction:instruction}>}
         logger.debug('Got %s instruction(s) to process', instructionInfoList.length);
 
@@ -120,18 +128,12 @@ client.getConfig().then(config => {
           var channelID = instructionInfo.channel_id;
           var instruction = instructionInfo.instruction;
 
-          if(instruction.status !== INSTRUCTION_EXECUTED_STATUS){
-            logger.warn('Skip instruction with status "%s" (not "%s")', instruction.status, INSTRUCTION_EXECUTED_STATUS);
-            return;
-          }
-
-          let ret = _processInstruction(instruction, channelID)
-
-          if(ret) {
-            ret.catch(e=>{
+          return Promise.resolve()
+            .then(() => _processInstruction(instruction, channelID) )
+            .catch(e => {
               logger.error('_processExecutedInstructions failed:', e);
             });
-          }
+
         });
       })
       .catch(e=>{
