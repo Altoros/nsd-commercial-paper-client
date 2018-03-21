@@ -57,4 +57,4 @@ services:
 networks:
   default:
     external:
-      name: ledger_default
+      name: dockercompose_default
