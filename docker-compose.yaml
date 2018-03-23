@@ -25,6 +25,17 @@ services:
       - API=http://api.megafon.nsd.ru:4000
     command: npm run sign
 
+  sign.nsd.ru:
+    extends:
+      file:   base.yaml
+      service: base
+    container_name: sign.${THIS_ORG}.nsd.ru
+    environment:
+      - API=http://api.${THIS_ORG}.nsd.ru:4000
+    command: npm run sign
+
+
+
   download.nsd.nsd.ru:
     extends:
       file:   base.yaml

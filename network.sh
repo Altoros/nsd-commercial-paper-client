@@ -35,7 +35,8 @@ function startSignUp () {
   if [ "$container" == "api.nsd.nsd.ru" ]; then
     container=$(echo $container |sed -e s/api\./download./)
   else
-    container=$(echo $container |sed -e s/api\./sign./)
+#    container=$(echo $container |sed -e s/api\.(w+)\./sign./)
+     container='sign.nsd.ru'
   fi;
   echo "Starting app: $container"
   docker-compose up -d $container
